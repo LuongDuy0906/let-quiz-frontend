@@ -13,30 +13,22 @@ interface Props {
 export const QuizSection = ({ title, image, rating, name }: Props) => {
     return (
         <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg">
-      
-            {/* 1. VÙNG CHỨA HÌNH ẢNH & HIỆU ỨNG (Added relative, group, w-full, h-32) */}
             <div className="relative w-full h-40 overflow-hidden flex-none">
-                
-                {/* Hình ảnh Quiz (object-cover is key) */}
                 <img 
                 src={image || "/placeholder-quiz.png"} 
                 alt={title} 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                 />
 
-                {/* 2. LỚP OVERLAY TỐI NỀN (Initially opacity-0, shows on group-hover) */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 </div>
 
-                {/* 3. NÚT BẤM (Initially opacity-0 & translated down, shows & moves on group-hover) */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-100">
-                <button className="bg-[#801FCA] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md hover:bg-[#6D1AAB] active:scale-95 transition-all">
-                    Chơi Ngay
+                <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5]transition-all duration-300">
+                    <a href="/login">Chơi ngay</a>
                 </button>
                 </div>
             </div>
-
-            {/* Cột phải: Nội dung */}
             <div className="flex flex-col justify-between p-3">
                 <div className="flex-none">
                     <p className="font-bold text-gray-800 line-clamp-2 leading-tight">
