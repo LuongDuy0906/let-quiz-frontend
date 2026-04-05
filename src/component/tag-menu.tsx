@@ -1,4 +1,4 @@
-import { TAG_DATA } from "@/types/tag-data";
+import { TAG_DATA } from "@/constants/constants";
 import { TagSection } from "./tag-section";
 
 export const TagMenu = () => {

@@ -1,5 +1,5 @@
+import { API_BASE_URL } from "@/constants/constants";
 import { getAccessToken } from "./auth";
-import { API_BASE_URL } from "./constant";
 
 type RequestInitAuth = RequestInit & { skipAuth?: boolean };
 

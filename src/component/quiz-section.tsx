@@ -1,15 +1,6 @@
 import { faStar } from "@fortawesome/free-solid-svg-icons/faStar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-interface Props {
-    _id: string;
-    title: string;
-    image: string;
-    rating: number;
-    name: string;
-    createdAt: string;
-}
-
 export const QuizSection = ({ title, image, rating, name }: Props) => {
     return (
         <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg">

@@ -1,4 +1,4 @@
-import { HERO_SECTION_DATA } from "@/types/hero-data"
+import { HERO_SECTION_DATA } from "@/constants/constants"
 import { HeroSection } from "./hero-section"
 
 export const HeroField = () => {
