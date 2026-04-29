@@ -1,8 +1,10 @@
+"use client"
+
 import { HeroField } from "@/component/hero-field";
 import { QuizField } from "@/component/quiz-field";
 import { TagMenu } from "@/component/tag-menu";
 import { HOME_TAGS } from "@/constants/constants";
-import { apiFetch } from "@/lib/api";
+import { quizService } from "@/features/quiz/quiz.service";
 import { useEffect, useState } from "react";
 
 
@@ -13,38 +15,16 @@ export default function HomePage() {
         tagSections: []
     });
 
-    const getQuizzesBySection = async (params = {}) => {
-        try {
-            const queryString = new URLSearchParams(params).toString();
-            
-            const response = await apiFetch(`/quiz?${queryString}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                skipAuth: true,
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`Fetch failed for ${queryString}:`, errorData);
-                return null;
-            }
-
-            const result = await response.json();
-            return result;
-        }
-        catch(e) {
-            console.error('Lỗi khi gọi API:', e);
-            return null;
-        }
-    }
-
     const loadHomeData = async () => {
         const [newData, ratedData] = await Promise.all([
-            getQuizzesBySection({ sort: 'createdAt', limit: 6 }),
-            getQuizzesBySection({ sort: 'rating', limit: 6 })
+            quizService.getQuizzes({ sort: 'createdAt'}),
+            quizService.getQuizzes({ sort: 'rating'})
         ]);
 
-        const tagRequests = HOME_TAGS.map(tag => getQuizzesBySection({ tag, limit: 6 }));
+        newData.title = "Mới cập nhật";
+        ratedData.title = "Phổ biến nhất";
+
+        const tagRequests = HOME_TAGS.map(tag => quizService.getQuizzes({ tag }));
         const tagsResults = await Promise.all(tagRequests);
 
         setSections({

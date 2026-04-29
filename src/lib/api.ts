@@ -1,21 +1,37 @@
 import { API_BASE_URL } from "@/constants/constants";
-import { getAccessToken } from "./auth";
+import { authService } from "@/features/auth/auth.service";
 
-type RequestInitAuth = RequestInit & { skipAuth?: boolean };
+let refreshingPromise: Promise<string | null> | null = null;
 
-export async function apiFetch(path: string, options: RequestInitAuth = {}): Promise<Response> {
-    const {skipAuth, ...rest} = options;
-    const url = path.startsWith('http') ? path : `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
-    const token = skipAuth ? null : getAccessToken();
-    const headers = new Headers(rest.headers as HeadersInit);
-    if (token) {
+export async function apiFetch(path: string, options: any = {}): Promise<Response> {
+    const { skipAuth, _retry, ...rest } = options;
+    
+    const token = localStorage.getItem('accessToken');
+    const headers = new Headers(rest.headers);
+    if (token && !skipAuth) {
         headers.set('Authorization', `Bearer ${token}`);
     }
-    const fetchOptions: RequestInit = {
-        ...rest,
-        headers
-    };
-    return fetch(url, fetchOptions);
-}
 
-export {API_BASE_URL};
+    let response = await fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, { ...rest, headers });
+
+    if (response.status === 401 && !skipAuth && !_retry) {
+        const rt = localStorage.getItem('refreshToken');
+        if (!rt) return response;
+
+        if (!refreshingPromise) {
+            refreshingPromise = authService.refreshToken(rt);
+        }
+
+        const newToken = await refreshingPromise;
+        refreshingPromise = null;
+
+        if (newToken) {
+            return apiFetch(path, { ...options, _retry: true });
+        } else {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+    }
+
+    return response;
+}

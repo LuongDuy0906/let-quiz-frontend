@@ -17,9 +17,13 @@ export const HERO_SECTION_DATA = [
 
 export const HOME_TAGS = 
 [
-    'Art & Literature', 
-    'Geography', 
-    'Sports'
+    "Entertainment",
+    "Sport",
+    "Art & Literature",
+    "Geography",
+    "History",
+    "Science & Nature",
+    "Trivia"
 ];
 
 export const TAG_DATA = [

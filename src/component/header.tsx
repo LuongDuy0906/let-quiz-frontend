@@ -1,14 +1,14 @@
 "use client";
 
-import { CircleUserRound, Search } from "lucide-react";
+import { useUser } from "@/providers/user.provider";
+import { CircleUserRound, Link, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Header = () => {
-   const [token, setToken] = useState<string | null>(null);
+   const {user, loading} = useUser();
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('accessToken');
-        setToken(storedToken);
+        console.log(user);
     }, []);
 
     return (
@@ -36,12 +36,18 @@ export const Header = () => {
                 </div>
                 <div className="flex items-center justify-center">
                     {
-                        !token ? (
-                            <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5]transition-all duration-300">
-                                <a href="/login">Đăng nhập</a>
+                        !user ? (
+                            <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-none active:translate-y-1 transition-all duration-300">
+                                    <a href="/login">Đăng nhập</a>
                             </button>
                         ) : (
-                            <CircleUserRound  className="w-16 h-16"/>
+                            <a href="/profile">
+                                {!user?.profile?.image ? (
+                                    <CircleUserRound  className="w-16 h-16"/>
+                                ) : (
+                                    <img src={user?.profile?.image} alt="User Avatar" className="w-16 h-16 rounded-full" />
+                                )}
+                            </a>
                         )
                     }
                 </div>

@@ -2,6 +2,7 @@ import { Header } from '@/component/header';
 import './globals.css';
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import { UserProvider } from '@/providers/user.provider';
 config.autoAddCss = false
 
 export const metadata = {
@@ -20,8 +21,10 @@ export default function RootLayout({
                 <link rel="icon" href="image/let_quiz_logo.png" />
             </head>
             <body className="bg-[#E0E7FF]">
-                <Header />
-                {children}
+                <UserProvider>
+                    <Header />
+                    {children}
+                </UserProvider>
             </body>
         </html>
     );

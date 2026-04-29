@@ -1,7 +1,8 @@
 "use client";
 
 import BaseInput from "@/component/base-input";
-import { apiFetch } from "@/lib/api";
+import { authService } from "@/features/auth/auth.service";
+import { useUser } from "@/providers/user.provider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,70 +13,17 @@ export default function Login() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const {refreshProfile} = useUser();
 
-    const login = async () => {
-        try {
-            const response = await apiFetch('/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', 
-                },
-                body: JSON.stringify({ email, password }),
-                skipAuth: true,
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                console.error('Login failed:', data.message);
-                return;
-            }
-            try{
-                localStorage.setItem('accessToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
-            }
-            catch (error) {
-                console.error('Failed to save access token:', error);
-            }
-            router.push('/');
-        } catch (error) {
-            console.error('An error occurred during login:', error);
-        }       
-    };
-
-    const register = async () => {
-        try {
-            const response = await apiFetch('/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, username, password }),
-                skipAuth: true,
-            });
-            const data = await response.json();
-            console.log('Registration response:', data);
-            if (!response.ok) {
-                console.error('Registration failed:', data.message);
-                return;
-            }
-            try {
-                localStorage.setItem('accessToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
-            } catch (error) {
-                console.error('Failed to save access token:', error);
-            }
-
-            router.push('/');
-        } catch (error) {
-            console.error('An error occurred during registration:', error);
-        }   
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (isLogin) {
-            login();
+            const response = await authService.login(email, password);
+            await refreshProfile();
+            router.push('/')
         } else {
-            register();
+            const response = await authService.register(email, username, password);
+            router.push('/')
         }
     }
 
@@ -105,7 +53,7 @@ export default function Login() {
                             isLogin ? "Hoặc đăng nhập với Email" : "Hoặc đăng ký với Email"
                         }
                     </label>
-                    <BaseInput placeholder="Email" onChange={(e) => setEmail(e.target.value)}/>
+                    <BaseInput type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)}/>
                 </div>
                 {
                     !isLogin && 
