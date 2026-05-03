@@ -62,7 +62,7 @@ export const authService = {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${refreshToken}`,
                 },
-                body: JSON.stringify({ refresh_token: refreshToken }),
+                skipAuth: true,
             });
             const data = await response.json();
             if (!response.ok) {
@@ -70,10 +70,10 @@ export const authService = {
                 return;
             }
             try {
-                localStorage.setItem('accessToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
+                localStorage.setItem('accessToken', data.new_access_token);
+                localStorage.setItem('refreshToken', data.new.refresh_token);
 
-                return data.access_token;
+                return data.new_access_token;
             } catch (error) {
                 console.error('Failed to save access token:', error);
             }

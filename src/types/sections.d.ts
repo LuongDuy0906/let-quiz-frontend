@@ -14,9 +14,10 @@ interface Props {
   _id: string;
   title: string;
   image: string;
-  rating: number;
+  rating?: number;
   name: string;
   createdAt: string;
+  totalQuestions?: number;
 }
 
 interface UserContextType {
