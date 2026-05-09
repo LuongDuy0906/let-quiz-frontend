@@ -56,4 +56,5 @@ interface QuizSelectorProps {
   text: string;
   type: string;
   logo: string;
+  onClick?: () => void;
 }

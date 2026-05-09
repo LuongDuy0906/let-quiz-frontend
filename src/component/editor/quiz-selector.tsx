@@ -2,9 +2,9 @@ import { faSquare, faSquareCheck } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Check, Square } from "lucide-react"
 
-export const QuizSelector = ({text, type, logo}: QuizSelectorProps) => {
+export const QuizSelector = ({text, type, logo, onClick}: QuizSelectorProps) => {
     return (
-        <button className="bg-[#4E62A8]/80 flex flex-row gap-5 w-96 h-30 justify-center items-center p-5 rounded-xl cursor-pointer">
+        <button onClick={onClick} className="bg-[#4E62A8]/80 flex flex-row gap-5 w-96 h-30 justify-center items-center p-5 rounded-xl cursor-pointer">
             <div className="w-30 h-30 flex justify-center items-center">
                 <div className="w-20 h-20 rounded-full bg-[#6C7EBA]/80 flex justify-center items-center">
                     {

@@ -9,7 +9,7 @@ export const UserQuizSection = ({
 }: UserQuizSectionProps) => {
 
     return (
-        <div className="flex-1 border rounded-lg p-6 bg-[#D2DCFF] shadow-sm w-full flex flex-col justify-between min-h-[700px]">
+        <div className="flex-1 border rounded-lg p-6 bg-[#D2DCFF] shadow-sm w-full flex flex-col justify-between min-h-175">
             <style dangerouslySetInnerHTML={{ 
                 __html: `
                     .custom-card-wrapper img {
@@ -30,7 +30,7 @@ export const UserQuizSection = ({
                 {quiz.map((element: any) => (
                     <div 
                         key={element._id} 
-                        className="custom-card-wrapper w-full max-w-[280px] h-[240px] mx-auto overflow-hidden bg-white rounded-xl shadow-sm"
+                        className="custom-card-wrapper w-full max-w-70 h-60 mx-auto overflow-hidden bg-white rounded-xl shadow-sm"
                     > 
                         <QuizSection 
                             _id={element._id}           
