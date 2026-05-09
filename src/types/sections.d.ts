@@ -26,3 +26,34 @@ interface UserContextType {
   refreshProfile: () => Promise<void>;
   loading: boolean;
 }
+
+interface UserQuizSectionProps {
+  quiz: any[];
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  isFetching: boolean;
+} 
+
+interface ProfileDetailProps {
+  user: any;
+  totalQuiz: number;
+}
+
+interface BaseInputProps{
+  type?: string;
+  placeholder: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isReadonly: boolean;
+}
+
+interface ResetPasswordProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+interface QuizSelectorProps {
+  text: string;
+  type: string;
+  logo: string;
+}

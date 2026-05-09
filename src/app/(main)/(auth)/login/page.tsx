@@ -53,13 +53,13 @@ export default function Login() {
                             isLogin ? "Hoặc đăng nhập với Email" : "Hoặc đăng ký với Email"
                         }
                     </label>
-                    <BaseInput type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)}/>
+                    <BaseInput type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} isReadonly={false}/>
                 </div>
                 {
                     !isLogin && 
                     <div>
                         <label className="text-xl text-[#666464] font-medium">Tên người dùng</label>
-                        <BaseInput type="text" placeholder="Tên người dùng" onChange={(e) => setUsername(e.target.value)}/>
+                        <BaseInput type="text" placeholder="Tên người dùng" onChange={(e) => setUsername(e.target.value)} isReadonly={false}/>
                     </div>
                 }
                 <div>
@@ -70,7 +70,7 @@ export default function Login() {
                         <p className={`${!isLogin ? 'flex-none' : 'flex-none'} text-xl text-[#666464] font-medium`}>Hiện thị mật khẩu</p>
                         <input type="checkbox" className="flex-initial w-6 h-6 accent-gray-400" checked={showPassword} onChange={() => setShowPassword(!showPassword)}/>
                     </div>
-                    <BaseInput type={`${showPassword ? 'text' : 'password'}`} placeholder="Mật khẩu" onChange={(e) => setPassword(e.target.value)}/>
+                    <BaseInput type={`${showPassword ? 'text' : 'password'}`} placeholder="Mật khẩu" onChange={(e) => setPassword(e.target.value)} isReadonly={false}/>
                 </div>
                 <div>
                     <button type="submit" className="bg-[#15A440] text-white font-bold text-2xl flex items-center justify-center w-full h-14 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300">

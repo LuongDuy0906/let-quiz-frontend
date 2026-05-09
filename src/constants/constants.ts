@@ -37,3 +37,20 @@ export const TAG_DATA = [
   { imageUrl: "/image/tag_image/trivia.png", title: "Đa dạng" },
 ];
 
+export const createDefaultQuestion = (): any => {
+    return { 
+        content: "required",
+        image: "", // Trường này optional nên để rỗng
+        questionType: "single-choice", // Thay bằng giá trị mặc định trong Enum của bạn (ví dụ: QuestionType.SINGLE)
+        timeLimit: 30, // Giá trị Min theo DTO
+        point: 10,    // Giá trị Min theo DTO
+        option: [
+            { content: "required", isCorrect: true },
+            { content: "required", isCorrect: false },
+            { content: "required", isCorrect: false },
+            { content: "required", isCorrect: false },
+        ]
+    };
+};
+
+export type EditorStep = 'setting' | 'type-selector' | 'single-choice' | 'multiple-choice';

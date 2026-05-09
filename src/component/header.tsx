@@ -5,22 +5,18 @@ import { CircleUserRound, Link, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Header = () => {
-   const {user, loading} = useUser();
-
-    useEffect(() => {
-        console.log(user);
-    }, []);
+    const {user, loading} = useUser();
 
     return (
-        <header className="grid grid-cols-[300px_1fr_300px] h-40 ml-50 mr-50 border-b-[#B3DFDD] border-b-2"> 
+        <header className={`grid ${user ? 'grid-cols-[300px_1fr_200px]' : 'grid-cols-[300px_1fr_300px]' } h-40 ml-50 mr-50 border-b-[#B3DFDD] border-b-2`}> 
             <div className="flex items-center justify-center">
                 <a href="/"><img src="/image/let_quiz_logo.png" alt="Logo" className="h-35" /></a>
             </div>
-            <div className="grid grid-cols-2 gap-10 bg-[#7CD7F0] m-6 rounded-2xl">
+            <div className="grid grid-cols-2 bg-[#7CD7F0] m-6 rounded-2xl">
                 <div className= "font-bold text-3xl text-center flex items-center justify-end">
                     Chơi chứ ? Nhập mã PIN
                 </div>
-                <div className="flex items-center justify-start">
+                <div className="flex items-center justify-center">
                     <input
                         type="text"
                         placeholder="123 456"
@@ -42,10 +38,10 @@ export const Header = () => {
                             </button>
                         ) : (
                             <a href="/profile">
-                                {!user?.profile?.image ? (
+                                {!user.profile.avatarUrl ? (
                                     <CircleUserRound  className="w-16 h-16"/>
                                 ) : (
-                                    <img src={user?.profile?.image} alt="User Avatar" className="w-16 h-16 rounded-full" />
+                                    <img src={user.profile.avatarUrl} alt="User Avatar" className="w-16 h-16 rounded-full" />
                                 )}
                             </a>
                         )
