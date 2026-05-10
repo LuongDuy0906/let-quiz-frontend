@@ -1,7 +1,7 @@
 'use client'
 
 import { QuizSelector } from "@/component/editor/quiz-selector";
-import { SingleChoiceQuestion } from "@/component/editor/single-choice-question";
+import { QuestionEditor} from "@/component/editor/question-editor";
 import { TypeSelector } from "@/component/editor/type-seletor";
 import { createDefaultQuestion, EditorStep } from "@/constants/constants";
 import { Plus } from "lucide-react";
@@ -48,7 +48,9 @@ export default function CreateQuizPage() {
             case 'type-selector':
                 return <TypeSelector onSelect={selectTypeAndAdd}/>
             case 'single-choice':
-                return <SingleChoiceQuestion question={questions[activeIndex]} index={activeIndex} onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} />
+                return <QuestionEditor question={questions[activeIndex]} index={activeIndex} onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} type="single-choice" />
+            case 'multiple-choice':
+                return <QuestionEditor question={questions[activeIndex]} index={activeIndex} onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} type="multiple-choice" />
         }
     }
 
