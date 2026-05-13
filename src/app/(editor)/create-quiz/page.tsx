@@ -55,7 +55,7 @@ export default function CreateQuizPage() {
     }
 
     return (
-        <div className="flex flex-col flex-1 pt-15">
+        <div className="flex flex-col flex-1">
             {
                 renderComponent()
             }

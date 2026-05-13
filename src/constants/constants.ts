@@ -40,7 +40,7 @@ export const TAG_DATA = [
 export const createDefaultQuestion = (type?: 'single-choice' | 'multiple-choice'): any => {
     return { 
         content: "required",
-        image: "",
+        image: "C:\\Users\\3456\\Downloads\\email_attachment_16086964045522858488_download.jpg",
         questionType: type ? type : null,
         timeLimit: 30, 
         point: 1000,
@@ -49,7 +49,8 @@ export const createDefaultQuestion = (type?: 'single-choice' | 'multiple-choice'
             { content: "required", isCorrect: false },
             { content: "required", isCorrect: false },
             { content: "required", isCorrect: false },
-        ]
+        ],
+        description: 'optional'
     };
 };
 

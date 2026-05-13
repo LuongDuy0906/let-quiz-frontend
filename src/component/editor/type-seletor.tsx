@@ -6,7 +6,7 @@ interface Props{
 
 export const TypeSelector = ({onSelect}: Props) => {
     return (
-        <div className="flex flex-col flex-1 items-center justify-start gap-10">
+        <div className="flex flex-col flex-1 items-center justify-start gap-10 pt-10">
             <div className="text-4xl font-bold text-white">
                 <h1>Loại đề</h1>
             </div>
