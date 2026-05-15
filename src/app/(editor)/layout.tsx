@@ -22,12 +22,7 @@ export default function EditorLayout({
                 <link rel="icon" href="image/let_quiz_logo.png" />
             </head>
             <body className="bg-[#4E62A8]/87 flex flex-col min-h-screen">
-                <UserProvider>
-                    <Header />
-                    <main className='flex flex-1 flex-col'>
-                        {children}
-                    </main>
-                </UserProvider>
+                {children}
             </body>
         </html>
     );

@@ -1,6 +1,4 @@
-import { faSquare, faSquareCheck } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Check, Square } from "lucide-react"
+import { Check } from "lucide-react"
 
 export const QuizSelector = ({text, type, logo, onClick}: QuizSelectorProps) => {
     return (
@@ -8,7 +6,7 @@ export const QuizSelector = ({text, type, logo, onClick}: QuizSelectorProps) => 
             <div className="w-30 h-30 flex justify-center items-center">
                 <div className="w-20 h-20 rounded-full bg-[#6C7EBA]/80 flex justify-center items-center">
                     {
-                        logo == 'single-choice' ? 
+                        logo == 'single' ? 
                         <div className="h-12 w-12 bg-green-500 rounded-md border-black border-4 shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)]"></div> 
                         : 
                         <div className="h-12 w-12 bg-white flex justify-center items-center rounded-md border-black border-4 shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)]">

@@ -1,7 +1,7 @@
 import { QuizSelector } from "./quiz-selector"
 
 interface Props{
-    onSelect: (type: 'single-choice' | 'multiple-choice') => void;
+    onSelect: (type: 'single' | 'multiple') => void;
 }
 
 export const TypeSelector = ({onSelect}: Props) => {
@@ -12,10 +12,10 @@ export const TypeSelector = ({onSelect}: Props) => {
             </div>
             <div className="flex flex-row items-center justify-center gap-5">
                 <div className="">
-                    <QuizSelector text="Nút" type="Đơn đáp án" logo="single-choice" onClick={() => onSelect('single-choice')}/>
+                    <QuizSelector text="Nút" type="Đơn đáp án" logo="single" onClick={() => onSelect('single')}/>
                 </div>
                 <div className="">
-                    <QuizSelector text="Ô chọn" type="Đa đáp án" logo="multiple-choice" onClick={() => onSelect('multiple-choice')}/>
+                    <QuizSelector text="Ô chọn" type="Đa đáp án" logo="multiple" onClick={() => onSelect('multiple')}/>
                 </div>
             </div>
         </div>

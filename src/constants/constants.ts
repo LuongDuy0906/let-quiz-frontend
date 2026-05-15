@@ -37,10 +37,10 @@ export const TAG_DATA = [
   { imageUrl: "/image/tag_image/trivia.png", title: "Đa dạng" },
 ];
 
-export const createDefaultQuestion = (type?: 'single-choice' | 'multiple-choice'): any => {
+export const createDefaultQuestion = (type?: 'single' | 'multiple'): any => {
     return { 
         content: "required",
-        image: "C:\\Users\\3456\\Downloads\\email_attachment_16086964045522858488_download.jpg",
+        image: "",
         questionType: type ? type : null,
         timeLimit: 30, 
         point: 1000,
@@ -50,8 +50,28 @@ export const createDefaultQuestion = (type?: 'single-choice' | 'multiple-choice'
             { content: "required", isCorrect: false },
             { content: "required", isCorrect: false },
         ],
-        description: 'optional'
+        information: 'optional'
     };
 };
 
-export type EditorStep = 'setting' | 'type-selector' | 'single-choice' | 'multiple-choice';
+export const createDefaultQuiz = () => {
+    return {
+        title: 'required',
+        image: '',
+        description: 'optional',
+        question: [createDefaultQuestion()],
+        tag: [
+            'required'
+        ],
+        status: 'public'
+    }
+}
+
+export type EditorStep = 'setting' | 'type-selector' | 'single' | 'multiple';
+
+export const base64toFile = async (base64: string, fileName: string) => {
+    const res = await fetch(base64);
+    const blob = await res.blob();
+
+    return new File([blob], fileName, {type: blob.type});
+}

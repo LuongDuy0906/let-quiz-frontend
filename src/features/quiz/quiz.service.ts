@@ -24,5 +24,60 @@ export const quizService = {
             console.error('Lỗi khi gọi API:', e);
             return null;
         }
+    },
+
+    uploadQuizImage: async (file: File) => {
+        const token = localStorage.getItem('accessToken');
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await apiFetch('/quiz/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                skipAuth: true,
+                body: formData
+            });       
+
+            if(!res.ok){
+                const error = res.json();
+                console.log('Lỗi khi lưu bộ đề', error);
+            }
+
+            const imageUrl = await res.json();
+
+            return imageUrl.image;
+        } catch (e) {
+            console.log('Lỗi khi lưu bộ đề', e);
+            return;
+        }
+    },
+
+    saveQuiz: async (quizData: any) => {
+        const token = localStorage.getItem('accessToken');
+
+        try {
+            const res = await apiFetch('/quiz', {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                skipAuth: true,
+                body: JSON.stringify(quizData)
+            });
+
+            if(!res.ok){
+                const error = await res.json();
+                console.log('Lỗi khi lưu bộ đề: ', error);
+            }
+
+            return 'Lưu bộ đề thành công'
+        } catch (e) {
+            console.log('Lỗi khi lưu bộ đề: ', e);
+        }
     }
 }
