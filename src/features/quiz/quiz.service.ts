@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { toast } from "react-toastify";
 
 export const quizService = {
     getQuizzes: async (params: {}) => {
@@ -27,24 +28,19 @@ export const quizService = {
     },
 
     uploadQuizImage: async (file: File) => {
-        const token = localStorage.getItem('accessToken');
-
         const formData = new FormData();
         formData.append('image', file);
 
         try {
             const res = await apiFetch('/quiz/upload', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                skipAuth: true,
                 body: formData
             });       
 
             if(!res.ok){
                 const error = res.json();
                 console.log('Lỗi khi lưu bộ đề', error);
+                toast.error(error);
             }
 
             const imageUrl = await res.json();
@@ -57,27 +53,30 @@ export const quizService = {
     },
 
     saveQuiz: async (quizData: any) => {
-        const token = localStorage.getItem('accessToken');
-
         try {
             const res = await apiFetch('/quiz', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
-                skipAuth: true,
                 body: JSON.stringify(quizData)
             });
 
             if(!res.ok){
                 const error = await res.json();
                 console.log('Lỗi khi lưu bộ đề: ', error);
+                const errorMessage = Array.isArray(error.message)
+                ? error.message.join(", ") // Nối các lỗi mảng thành chuỗi
+                : error.message || "Đã xảy ra lỗi không xác định";
+                toast.error(errorMessage);
+                return;
             }
 
+            toast.success("Thêm bộ đề thành công");
             return 'Lưu bộ đề thành công'
         } catch (e) {
             console.log('Lỗi khi lưu bộ đề: ', e);
+            toast.error(e);
         }
     }
 }

@@ -9,7 +9,7 @@ export const UserQuizSection = ({
 }: UserQuizSectionProps) => {
 
     return (
-        <div className="flex-1 border rounded-lg p-6 bg-[#D2DCFF] shadow-sm w-full flex flex-col justify-between min-h-175">
+        <div className="flex-1 border rounded-lg p-6 bg-[#D2DCFF] shadow-sm w-full flex flex-col gap-5 min-h-175">
             <style dangerouslySetInnerHTML={{ 
                 __html: `
                     .custom-card-wrapper img {

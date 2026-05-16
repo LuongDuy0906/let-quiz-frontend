@@ -111,7 +111,7 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
                     </div>
                 </div>
                 {
-                    type === 'single-choice' ?
+                    type === 'single' ?
                     <div className="flex flex-col gap-5">
                         <div className="">
                             <div className="rounded-tl-md rounded-tr-xl bg-[#18C574] h-6 w-25 flex justify-center items-center text-white font-medium text-sm">

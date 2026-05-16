@@ -16,7 +16,7 @@ export const QuizSection = ({ title, image, rating, name, totalQuestions }: Prop
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-100">
                 <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5] transition-all duration-300">
-                    <a href="/login">Chơi ngay</a>
+                    <a href="/login">Chi tiết</a>
                 </button>
                 </div>
             </div>

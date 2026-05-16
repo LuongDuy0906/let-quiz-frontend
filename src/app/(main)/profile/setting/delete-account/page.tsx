@@ -31,11 +31,9 @@ function DeleteAccountContent() {
                 
                 if (response.success) {
                     setStatus("success");
-                    // Xóa session ở client
                     localStorage.removeItem('accessToken');
                     setUser(null);
                     
-                    // Đợi 3 giây rồi chuyển về trang chủ
                     setTimeout(() => {
                         router.push('/');
                     }, 3000);
