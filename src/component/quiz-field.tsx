@@ -28,7 +28,7 @@ export const QuizField = ({sections}: QuizFieldProps) => {
 
             <div className="flex-1 flex flex-row gap-6 p-8 overflow-x-auto no-scrollbar items-stretch"> 
                 {data.map((item) => (
-                    <div key={item._id} className="w-[280px] flex-none"> 
+                    <div key={item._id} className="w-70 flex-none"> 
                         <QuizSection 
                             _id={item._id}           
                             title={item.title} 
@@ -36,6 +36,7 @@ export const QuizField = ({sections}: QuizFieldProps) => {
                             rating={item.rating} 
                             name={item.authorId?.profile?.username || "LetQuiz User"} 
                             createdAt={item.createdAt}
+                            totalQuestions={item.totalQuestions}
                         />
                     </div>
                 ))}

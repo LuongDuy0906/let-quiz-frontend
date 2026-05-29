@@ -1,7 +1,29 @@
+'use client'
+
+import { gameSessionService } from "@/features/game-session/game-session.service";
 import { faStar } from "@fortawesome/free-solid-svg-icons/faStar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { timeEnd } from "console";
+import { useRouter } from "next/navigation";
 
-export const QuizSection = ({ title, image, rating, name, totalQuestions }: Props) => {
+export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }: Props) => {
+    const router = useRouter();
+
+    const handlePlayNow = async () => {
+        const sessionId = await gameSessionService.initGameSession(_id);
+
+        if(sessionId){
+            const quiz = {
+                _id: _id,
+                title: title,
+                totalQuestions: totalQuestions || 0,
+                image: image
+            }
+
+            sessionStorage.setItem(`room_quiz:${sessionId}`, JSON.stringify(quiz));
+            router.push(`/play/${sessionId}`);
+        }
+    }
     return (
         <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg">
             <div className="relative w-full h-40 overflow-hidden flex-none">
@@ -15,8 +37,8 @@ export const QuizSection = ({ title, image, rating, name, totalQuestions }: Prop
                 </div>
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-100">
-                <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5] transition-all duration-300">
-                    <a href="/login">Chi tiết</a>
+                <button onClick={handlePlayNow} className="border-4 border-black rounded-full w-40 h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5] transition-all duration-300">
+                    Chơi ngay
                 </button>
                 </div>
             </div>

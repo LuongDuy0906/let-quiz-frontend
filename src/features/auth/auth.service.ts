@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api";
 import { skip } from "node:test";
+import { toast } from "react-toastify";
 
 export const authService = {
     login: async (email: string, password: string) => {
@@ -23,6 +24,8 @@ export const authService = {
             } catch (error) {
                 console.error('Failed to save access token:', error);
             }
+            toast.success("Đăng nhập thành công");
+            return 'Đăng nhập thành công'
         } catch (error) {
             console.error('An error occurred during login:', error);
         }
