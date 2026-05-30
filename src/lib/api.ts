@@ -8,11 +8,15 @@ export async function apiFetch(path: string, options: any = {}): Promise<Respons
     
     const token = localStorage.getItem('accessToken');
     const headers = new Headers(rest.headers);
+    
     if (token && !skipAuth) {
         headers.set('Authorization', `Bearer ${token}`);
     }
 
-    let response = await fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, { ...rest, headers });
+    let response = await fetch(
+        `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, 
+        { ...rest, headers }
+    );
 
     if (response.status === 401 && !skipAuth && !_retry) {
         const rt = localStorage.getItem('refreshToken');
@@ -34,4 +38,18 @@ export async function apiFetch(path: string, options: any = {}): Promise<Respons
     }
 
     return response;
+}
+
+export async function handleApiResponse<T = any>(response: Response): Promise<T> {
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw {
+            status: response.status,
+            message: Array.isArray(error.message)
+                ? error.message.join(", ")
+                : error.message || "Đã xảy ra lỗi không xác định",
+            data: error
+        };
+    }
+    return response.json() as Promise<T>;
 }

@@ -19,8 +19,7 @@ export default function ProfilePage() {
     const fetchQuiz = async (page: number) => {
         setIsFetching(true);
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await userService.getLibrary(token!, page, 6);
+            const response = await userService.getLibrary(page, 6);
             
             if (response && response.data) {
                 setQuiz(response.data);

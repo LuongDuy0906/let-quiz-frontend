@@ -3,8 +3,8 @@
 import { Copy, Eye, Search } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
-import { useSocket } from "@/providers/socket.provider"; // 👈 Import Hook quản lý socket của bạn
-import { PlayerJoinModal } from "./player-join-modal"; // 👈 Import Pop-up đã tách file
+import { useSocket } from "@/providers/socket.provider";
+import { PlayerJoinModal } from "./player-join-modal";
 
 interface LobbyProps {
     sessionId: string;
@@ -151,7 +151,6 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
                 </div>
             </div>
 
-            {/* CARD THÔNG TIN BỘ ĐỀ BÊN PHẢI */}
             <div className="flex flex-col w-lg h-full border border-black rounded-xl overflow-hidden shadow-sm">
                 <div className="flex flex-row flex-none bg-[#2241AE] p-2 rounded-t-xl gap-3">
                     <div className="flex-1">
@@ -168,7 +167,6 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
                 <div className="flex-1 bg-[#516BC4] min-h-50"></div>
             </div>
 
-            {/* 👉 ĐIỀU KHIỂN HIỂN THỊ POP-UP KHI CHƯA JOIN THÀNH CÔNG */}
             {!isJoined && <PlayerJoinModal onConfirm={handleConfirmJoin} />}
         </div>
     );

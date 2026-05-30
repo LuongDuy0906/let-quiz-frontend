@@ -19,7 +19,7 @@ export const UserProvider = ({children}: {children: React.ReactNode}) => {
         }
 
         try {
-            const profile = await userService.getMe(token!);
+            const profile = await userService.getMe();
             if(profile) {
                 setUser(profile);
             }

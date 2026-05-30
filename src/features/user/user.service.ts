@@ -1,103 +1,84 @@
-import { apiFetch } from "@/lib/api"
+import { apiFetch, handleApiResponse } from "@/lib/api";
+import { UserResponse, LibraryResponse } from "@/types/api";
+import { toast } from "react-toastify";
 
 export const userService = {
-    getMe: async (token: string) => {
+    getMe: async (): Promise<UserResponse | null> => {
         try {
-            const response = await apiFetch('user/me', {
+            const response = await apiFetch('/user/me', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            if(!response.ok){
-                const errorData = await response.json();
-                console.error('Failed to fetch user profile', errorData);
-                return null;
-            }
-
-            const result = response.json();
-            return result;
-        }
-        catch (e) {
-            console.error('Lỗi khi gọi API:', e);
+            const data = await handleApiResponse<UserResponse>(response);
+            return data;
+        } catch (error: any) {
+            console.error('Failed to fetch user profile:', error.message);
             return null;
         }
     },
 
-    getLibrary: async (token: string, page: number, limit: number) => {
+    getLibrary: async (page: number = 1, limit: number = 6): Promise<LibraryResponse | null> => {
         try {
-            const response = await apiFetch(`user/library?page=${page}&limit=${limit}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            const response = await apiFetch(
+                `/user/library?page=${page}&limit=${limit}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
             
-            if(!response.ok){
-                const errorData = await response.json();
-                console.error('Failed to fetch user profile', errorData);
-                return null;
-            }
-
-            const result = response.json();
-            return result;
-        }
-        catch (e) {
-            console.error('Lỗi khi gọi API:', e);
+            const data = await handleApiResponse<LibraryResponse>(response);
+            return data;
+        } catch (error: any) {
+            console.error('Failed to fetch library:', error.message);
             return null;
         }
     },
 
-    updateAvatar: async (file: File) => {
-        const token = localStorage.getItem('accessToken');
-        const formData = new FormData();
+    updateAvatar: async (file: File): Promise<any | null> => {
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
 
-        formData.append('image', file);
+            const response = await apiFetch('/user/profile/avatar', {
+                method: 'PATCH',
+                body: formData
+            });
 
-        const response = await apiFetch('user/profile/avatar', {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-            body: formData
-        })
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Cập nhật ảnh thất bại');
+            const data = await handleApiResponse(response);
+            toast.success("Cập nhật ảnh đại diện thành công");
+            
+            return data;
+        } catch (error: any) {
+            console.error('Update avatar failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
-
-        return response.json();
     },
 
-    updateProfile: async (username: string) => {
-        const token = localStorage.getItem('accessToken');
-
+    updateProfile: async (username: string): Promise<UserResponse | null> => {
         try {
-            const response = await apiFetch('user/profile', {
+            const response = await apiFetch('/user/profile', {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                    
                 },
-                body: JSON.stringify({username: username}),
-                skipAuth: true
-            })
+                body: JSON.stringify({ username }),
+            });
 
-            if(!response.ok){
-                const error = await response.json();
-                console.log('Lỗi khi cập nhật hồ sơ', error);
-                return null;
-            }
-
-            const result = response.json();
-            return result;
-        } catch (e) {
-            console.log("Lỗi khi cập nhật hồ sơ", e);
+            const data = await handleApiResponse<UserResponse>(response);
+            toast.success("Cập nhật hồ sơ thành công");
+            
+            return data;
+        } catch (error: any) {
+            console.error('Update profile failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
     }
-}
+};

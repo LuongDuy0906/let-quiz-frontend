@@ -123,9 +123,8 @@ export default function SettingPage() {
 
     // --- LOGIC 4: ĐĂNG XUẤT ---
     const handleLogOut = async () => {
-        const token = localStorage.getItem('accessToken');
         try {
-            if (token) await authService.logout(token);
+             await authService.logout();
         } finally {
             localStorage.clear();
             setUser(null);

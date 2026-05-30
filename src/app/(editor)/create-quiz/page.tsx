@@ -41,8 +41,7 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
             return { ...prev, question: newQuestions };
         });
     };
-
-    // Xóa câu hỏi
+    
     const handleDeleteQuestion = (indexToDelete: number) => {
         if (quiz.question.length <= 1) {
             alert("Bộ đề phải có ít nhất một câu hỏi!");

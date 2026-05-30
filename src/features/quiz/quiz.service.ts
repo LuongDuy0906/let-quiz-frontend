@@ -1,82 +1,66 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, handleApiResponse } from "@/lib/api";
+import { QuizzesResponse, ImageUploadResponse } from "@/types/api";
 import { toast } from "react-toastify";
 
 export const quizService = {
-    getQuizzes: async (params: {}) => {
+    getQuizzes: async (params: any = {}): Promise<QuizzesResponse | null> => {
         try {
             const queryString = new URLSearchParams(params).toString();
-                    
-            const response = await apiFetch(`/quiz?${queryString}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                skipAuth: true,
-            });
+            const response = await apiFetch(
+                `/quiz${queryString ? `?${queryString}` : ''}`,
+                {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
         
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`Fetch failed for ${queryString}:`, errorData);
-                return null;
-            }
-        
-            const result = await response.json();
-            return result;
-        }
-        catch(e) {
-            console.error('Lỗi khi gọi API:', e);
+            const data = await handleApiResponse<QuizzesResponse>(response);
+            return data;
+        } catch (error: any) {
+            console.error('Failed to fetch quizzes:', error.message);
             return null;
         }
     },
 
-    uploadQuizImage: async (file: File) => {
-        const formData = new FormData();
-        formData.append('image', file);
-
+    uploadQuizImage: async (file: File): Promise<string | null> => {
         try {
-            const res = await apiFetch('/quiz/upload', {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await apiFetch('/quiz/upload', {
                 method: 'POST',
                 body: formData
-            });       
+            });
 
-            if(!res.ok){
-                const error = res.json();
-                console.log('Lỗi khi lưu bộ đề', error);
-                toast.error(error);
-            }
-
-            const imageUrl = await res.json();
-
+            const imageUrl = await handleApiResponse<ImageUploadResponse>(response);
+            toast.success("Upload ảnh thành công");
+            
             return imageUrl.image;
-        } catch (e) {
-            console.log('Lỗi khi lưu bộ đề', e);
-            return;
+        } catch (error: any) {
+            console.error('Upload failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
     },
 
-    saveQuiz: async (quizData: any) => {
+    saveQuiz: async (quizData: any): Promise<any | null> => {
         try {
-            const res = await apiFetch('/quiz', {
+            const response = await apiFetch('/quiz', {
                 method: 'POST',
                 headers: {
-                    'Content-type': 'application/json',
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(quizData)
             });
 
-            if(!res.ok){
-                const error = await res.json();
-                console.log('Lỗi khi lưu bộ đề: ', error);
-                const errorMessage = Array.isArray(error.message)
-                ? error.message.join(", ") // Nối các lỗi mảng thành chuỗi
-                : error.message || "Đã xảy ra lỗi không xác định";
-                toast.error(errorMessage);
-                return;
-            }
-
+            const data = await handleApiResponse(response);
             toast.success("Thêm bộ đề thành công");
-            return 'Lưu bộ đề thành công'
-        } catch (e) {
-            console.log('Lỗi khi lưu bộ đề: ', e);
-            toast.error(e);
+            
+            return data;
+        } catch (error: any) {
+            console.error('Save quiz failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
     }
-}
+};

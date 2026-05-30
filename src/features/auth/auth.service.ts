@@ -1,37 +1,40 @@
-import { apiFetch } from "@/lib/api";
-import { skip } from "node:test";
+import { apiFetch, handleApiResponse } from "@/lib/api";
+import { 
+    AuthResponse, 
+    RefreshTokenResponse,
+    PasswordResetResponse,
+    ChangePasswordResponse,
+    DeleteAccountResponse
+} from "@/types/api";
 import { toast } from "react-toastify";
 
 export const authService = {
-    login: async (email: string, password: string) => {
+    login: async (email: string, password: string): Promise<AuthResponse | null> => {
         try {
             const response = await apiFetch('/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', 
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password }),
                 skipAuth: true,
             });
-            const data = await response.json();
-            if (!response.ok) {
-                console.error('Login failed:', data.message);
-                return;
-            }
-            try {
-                localStorage.setItem('accessToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
-            } catch (error) {
-                console.error('Failed to save access token:', error);
-            }
+            
+            const data = await handleApiResponse<AuthResponse>(response);
+            
+            localStorage.setItem('accessToken', data.access_token);
+            localStorage.setItem('refreshToken', data.refresh_token);
             toast.success("Đăng nhập thành công");
-            return 'Đăng nhập thành công'
-        } catch (error) {
-            console.error('An error occurred during login:', error);
+            
+            return data;
+        } catch (error: any) {
+            console.error('Login failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
     },
 
-    register: async (email: string, username: string, password: string) => {
+    register: async (email: string, username: string, password: string): Promise<AuthResponse | null> => {
         try {
             const response = await apiFetch('/auth/register', {
                 method: 'POST',
@@ -41,24 +44,22 @@ export const authService = {
                 body: JSON.stringify({ email, username, password }),
                 skipAuth: true,
             });
-            const data = await response.json();
-            console.log('Registration response:', data);
-            if (!response.ok) {
-                console.error('Registration failed:', data.message);
-                return;
-            }
-            try {
-                localStorage.setItem('accessToken', data.access_token);
-                localStorage.setItem('refreshToken', data.refresh_token);
-            } catch (error) {
-                console.error('Failed to save access token:', error);
-            }
-        } catch (error) {
-            console.error('An error occurred during registration:', error);
+            
+            const data = await handleApiResponse<AuthResponse>(response);
+            
+            localStorage.setItem('accessToken', data.access_token);
+            localStorage.setItem('refreshToken', data.refresh_token);
+            toast.success("Đăng ký thành công");
+            
+            return data;
+        } catch (error: any) {
+            console.error('Registration failed:', error.message);
+            toast.error(error.message);
+            return null;
         }
     },
 
-    refreshToken: async (refreshToken: string) => {
+    refreshToken: async (refreshToken: string): Promise<string | null> => {
         try {
             const response = await apiFetch('/auth/refresh-token', {
                 method: 'POST',
@@ -68,161 +69,127 @@ export const authService = {
                 },
                 skipAuth: true,
             });
-            const data = await response.json();
-            if (!response.ok) {
-                console.error('Token refresh failed:', data.message);
-                return;
-            }
-            try {
-                localStorage.setItem('accessToken', data.new_access_token);
-                localStorage.setItem('refreshToken', data.new_refresh_token);
+            
+            const data = await handleApiResponse<RefreshTokenResponse>(response);
+            
+            localStorage.setItem('accessToken', data.new_access_token);
+            localStorage.setItem('refreshToken', data.new_refresh_token);
 
-                return data.new_access_token;
-            } catch (error) {
-                console.error('Failed to save access token:', error);
-            }
-        } catch (error) {
-            console.error('An error occurred during token refresh:', error);
+            return data.new_access_token;
+        } catch (error: any) {
+            console.error('Token refresh failed:', error.message);
+            return null;
         }
     },
 
-    logout: async (accessToken: string) => {
+    logout: async (): Promise<boolean> => {
         try {
-            const response = await apiFetch('auth/logout', {
+            const response = await apiFetch('/auth/logout', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
                 },
-                skipAuth: true,
-            })
-
-            if (!response.ok) {
-                console.error('Server logout failed, continuing with client cleanup...');
-            }
-        } catch (e) {
-            console.error('Network error during logout:', e);
-        } finally {
-            try {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                
-                window.location.href = '/'; 
-            } catch (e) {
-                console.error('Failed to remove token from storage:', e);
-            }
+            });
+            
+            await handleApiResponse(response);
+            localStorage.clear();
+            window.location.href = '/login';
+            
+            return true;
+        } catch (error: any) {
+            console.error('Logout failed:', error.message);
+            localStorage.clear();
+            return false;
         }
     },
-
-    forgotPassword: async (email: string) => {
-        const token = localStorage.getItem('accessToken');
-
-        try{
-            const response = await apiFetch('auth/forgot-password', {
+    
+    forgotPassword: async (email: string): Promise<PasswordResetResponse> => {
+        try {
+            const response = await apiFetch('/auth/forgot-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
                 },
+                body: JSON.stringify({ email }),
                 skipAuth: true,
-                body: JSON.stringify({email}),
             });
 
-            if(!response.ok){
-                const errorData = await response.json(); 
-                console.log("Lỗi khi gửi email:", errorData);
-                return { success: false, message: errorData.message };
-            }
-
+            await handleApiResponse(response);
+            toast.success("Email xác nhận đã được gửi");
+            
             return { success: true };
-
-        } catch (e) {
-            console.log("Something went wrong", e);
-            return { success: false, message: "Lỗi kết nối" };
+        } catch (error: any) {
+            console.error('Forgot password failed:', error.message);
+            toast.error(error.message);
+            return { success: false, message: error.message };
         }
     },
-
-    changePassword: async (email: string, token: string, newPassword: string) => {
-        const accessToken = localStorage.getItem('accessToken');
-
+    
+    changePassword: async (email: string, token: string, newPassword: string): Promise<ChangePasswordResponse> => {
         try {
-            const response = await apiFetch('auth/change-password', {
+            const response = await apiFetch('/auth/change-password', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
                 },
+                body: JSON.stringify({ email, token, newPassword }),
                 skipAuth: true,
-                body: JSON.stringify({email, token, newPassword}),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error("Lỗi đổi mật khẩu:", data);
-                return { success: false, message: data.message || "Không thể đổi mật khẩu" };
-            }
-
+            const data = await handleApiResponse(response);
+            toast.success("Đổi mật khẩu thành công");
+            
             return { success: true, data };
-        } catch (e) {
-            console.log("Something went wrong", e);
-            return { success: false, message: "Lỗi kết nối" };
+        } catch (error: any) {
+            console.error('Change password failed:', error.message);
+            toast.error(error.message);
+            return { success: false, message: error.message };
         }
     },
 
-    sendDeleteAccount: async (email: string) => {
-        const accessToken = localStorage.getItem('accessToken');
-
-        try{
-            const response = await apiFetch('auth/delete-account', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                skipAuth: true,
-                body: JSON.stringify({email}),
-            });
-
-            if(!response.ok){
-                const errorData = await response.json(); 
-                console.log("Lỗi khi gửi email:", errorData);
-                return { success: false, message: errorData.message };
-            }
-
-            return { success: true };
-
-        } catch (e) {
-            console.log("Something went wrong", e);
-            return { success: false, message: "Lỗi kết nối" };
-        }
-    },
-
-    deleteAccount: async (email: string, token: string) => {
-        const accessToken = localStorage.getItem('accessToken');
-
+    sendDeleteAccount: async (email: string): Promise<PasswordResetResponse> => {
         try {
-            const response = await apiFetch('auth/delete-account/confirm', {
+            const response = await apiFetch('/auth/delete-account', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
                 },
+                body: JSON.stringify({ email }),
                 skipAuth: true,
-                body: JSON.stringify({email, token}),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error("Lỗi xóa tài khoản:", data);
-                return { success: false, message: data.message || "Không thể xóa tài khoản" };
-            }
-
-            return { success: true, data };
-        } catch (e) {
-            console.log("Something went wrong", e);
-            return { success: false, message: "Lỗi kết nối" };
+            await handleApiResponse(response);
+            toast.success("Email xác nhận xóa tài khoản đã được gửi");
+            
+            return { success: true };
+        } catch (error: any) {
+            console.error('Send delete account email failed:', error.message);
+            toast.error(error.message);
+            return { success: false, message: error.message };
         }
     },
-}
+
+    deleteAccount: async (email: string, token: string): Promise<DeleteAccountResponse> => {
+        try {
+            const response = await apiFetch('/auth/delete-account/confirm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, token }),
+                skipAuth: true,
+            });
+
+            const data = await handleApiResponse(response);
+            localStorage.clear();
+            toast.success("Tài khoản đã được xóa thành công");
+            window.location.href = '/login';
+            
+            return { success: true, data };
+        } catch (error: any) {
+            console.error('Delete account failed:', error.message);
+            toast.error(error.message);
+            return { success: false, message: error.message };
+        }
+    },
+};

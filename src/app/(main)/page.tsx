@@ -21,8 +21,8 @@ export default function HomePage() {
             quizService.getQuizzes({ sort: 'rating'})
         ]);
 
-        newData.title = "Mới cập nhật";
-        ratedData.title = "Phổ biến nhất";
+        newData!.title = "Mới cập nhật";
+        ratedData!.title = "Phổ biến nhất";
 
         const tagRequests = HOME_TAGS.map(tag => quizService.getQuizzes({ tag }));
         const tagsResults = await Promise.all(tagRequests);

@@ -4,13 +4,13 @@ import BaseInput from "@/component/base-input";
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { authService } from "@/features/auth/auth.service";
-import { useUser } from "@/providers/user.provider"; // Import để xóa trạng thái user
+import { useUser } from "@/providers/user.provider";
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const { setUser } = useUser(); // Lấy hàm setUser để cập nhật trạng thái toàn cục
+    const { setUser } = useUser();
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -30,14 +30,11 @@ export default function ResetPasswordPage() {
             const result = await authService.changePassword(email, token, password);
             
             if (result?.success) {
-                // 1. Thông báo thành công
                 alert("Đổi mật khẩu thành công! Hệ thống sẽ đăng xuất để bạn đăng nhập lại bằng mật khẩu mới.");
 
-                // 2. Thực hiện đăng xuất (Xóa token và state)
                 localStorage.removeItem('accessToken'); 
                 setUser(null); 
 
-                // 3. Chuyển hướng về trang đăng nhập
                 router.push('/login');
             } else {
                 alert(result?.message || "Có lỗi xảy ra, vui lòng thử lại.");
