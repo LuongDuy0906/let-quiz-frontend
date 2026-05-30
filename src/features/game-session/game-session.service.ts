@@ -34,6 +34,8 @@ export const gameSessionService = {
                 body: JSON.stringify({ roomPin })
             });
 
+            console.log(response);
+
             const data = await handleApiResponse<VerifyPinResponse>(response);
             return data;
         } catch (error: any) {

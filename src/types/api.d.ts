@@ -52,7 +52,6 @@ export interface GameSessionResponse {
 
 export interface VerifyPinResponse {
     sessionId: string;
-    [key: string]: any;
 }
 
 export interface ApiError {
