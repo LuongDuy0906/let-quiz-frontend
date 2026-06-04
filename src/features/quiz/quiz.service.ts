@@ -1,5 +1,5 @@
 import { apiFetch, handleApiResponse } from "@/lib/api";
-import { QuizzesResponse, ImageUploadResponse } from "@/types/api";
+import { QuizzesResponse, ImageUploadResponse, QuizResponse } from "@/types/api";
 import { toast } from "react-toastify";
 
 export const quizService = {
@@ -56,6 +56,22 @@ export const quizService = {
             const data = await handleApiResponse(response);
             toast.success("Thêm bộ đề thành công");
             
+            return data;
+        } catch (error: any) {
+            console.error('Save quiz failed:', error.message);
+            toast.error(error.message);
+            return null;
+        }
+    },
+
+    findOne: async (id: string) => {
+        try {
+            const response = await apiFetch(`quiz/${id}`, {
+                method: 'GET'
+            });
+
+            const data = await handleApiResponse<QuizResponse>(response);
+
             return data;
         } catch (error: any) {
             console.error('Save quiz failed:', error.message);

@@ -7,8 +7,9 @@ import { useSocket } from "@/providers/socket.provider";
 import { PlayerJoinModal } from "./player-join-modal";
 
 interface LobbyProps {
-    sessionId: string;
     pin: string;
+
+    sessionId?: string;
 }
 
 interface Player {
@@ -29,23 +30,31 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setJoinRoomUrl(`${window.location.origin}/play/${sessionId}`);
+            setJoinRoomUrl(`${window.location.origin}/play/${pin}`);
         }
         setIsMounted(true);
+
+        let quizData;
+
+        if(sessionId){
+            quizData = sessionStorage.getItem(`room_quiz:${sessionId}`);
+        } else {
+            quizData = sessionStorage.getItem(`room_quiz:${pin}`);
+        }
         
-        const quizData = sessionStorage.getItem(`room_quiz:${sessionId}`);
         if (quizData) {
             setQuiz(JSON.parse(quizData));
         }
-    }, [sessionId]);
+    }, [pin]);
 
-    const handleConfirmJoin = (nickname: string, avatarSeed: string) => {
+    const handleConfirmJoin = (nickname: string, avatarSeed: string, userId: string | null) => {
         const socketInstance = connectSocket(); 
 
         socketInstance.emit("joinRoom", {
             roomPin: pin,
             name: nickname,
-            avatar: avatarSeed
+            avatar: avatarSeed,
+            userId: userId
         });
 
         setIsJoined(true);
@@ -144,9 +153,22 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
                         )}
                     </div>
                     <div className="flex flex-1 w-full justify-center items-center p-10">
-                        <button className="border-4 border-black rounded-full w-60 h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-black bg-[#AAFB6C] hover:bg-[#C6FF9A] active:shadow-[none] active:bg-[#D1F8B3] active:translate-y-[0.5] transition-all duration-300 cursor-pointer">
-                            Bắt đầu thôi
-                        </button>
+                        {
+                            sessionId ? 
+                                <button className="border-4 border-black rounded-full w-60 h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-black bg-[#AAFB6C] hover:bg-[#C6FF9A] active:shadow-[none] active:bg-[#D1F8B3] active:translate-y-[0.5] transition-all duration-300 cursor-pointer">
+                                    Bắt đầu thôi
+                                </button>
+                            : 
+                                <button className="flex flex-row items-center justify-center gap-2 border-4 border-black rounded-full w-xs h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-black">
+                                    <span>Chờ chủ phòng bắt đầu</span>
+                                    <span className="flex flex-row items-center gap-1 ml-1 pt-2">
+                                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></span>
+                                    </span>
+                                </button>
+                        }
+                        
                     </div>
                 </div>
             </div>
@@ -164,7 +186,57 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 bg-[#516BC4] min-h-50"></div>
+                {
+                    sessionId ? 
+                        <div className="flex-1 flex flex-col bg-[#516BC4] min-h-50">
+                            <div className="p-4 text-white">
+                                <h3 className="text-xl font-medium [text-shadow:-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000,2px_2px_0_#000]">Âm lượng</h3>
+                                <div className="flex flex-col w-full gap-2">
+                                    <div className="flex flex-row gap-15 mt-5">
+                                        <label className="text-lg font-normal flex-none" htmlFor="">Âm lượng nền: </label>
+                                        <input type="range" min={0} max={100} name="" id="" className="w-full accent-black cursor-pointer flex-1"/>
+                                    </div>
+                                    <div className="flex flex-row gap-6">
+                                        <label className="text-lg font-normal flex-none" htmlFor="">Hiệu ứng âm thanh: </label>
+                                        <input type="range" min={0} max={100} name="" id="" className="w-full accent-black cursor-pointer flex-1"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-4 text-white">
+                                <h3 className="text-xl font-medium [text-shadow:-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000,2px_2px_0_#000]">Phòng chơi</h3>
+                                <div className="flex flex-col w-full justify-between">
+                                    <div className="flex flex-row gap-5 mt-5 items-center">
+                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <label htmlFor="" className="text-xl font-normal">Hiện thị bảng xếp hạng</label>
+                                    </div>
+                                    <div className="flex flex-row gap-5 mt-5 items-center">
+                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <label htmlFor="" className="text-xl font-normal">Tráo đổi vị trí câu hỏi</label>
+                                    </div>
+                                    <div className="flex flex-row gap-5 mt-5 items-center">
+                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <label htmlFor="" className="text-xl font-normal">Tráo đổi vị trí đáp án</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    :
+                        <div className="flex-1 flex flex-col bg-[#516BC4] min-h-50">
+                            <div className="p-4 text-white">
+                                <h3 className="text-xl font-medium [text-shadow:-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000,2px_2px_0_#000]">Âm lượng</h3>
+                                <div className="flex flex-col w-full gap-2">
+                                    <div className="flex flex-row gap-15 mt-5">
+                                        <label className="text-lg font-normal flex-none" htmlFor="">Âm lượng nền: </label>
+                                        <input type="range" min={0} max={100} name="" id="" className="w-full accent-black cursor-pointer flex-1"/>
+                                    </div>
+                                    <div className="flex flex-row gap-6">
+                                        <label className="text-lg font-normal flex-none" htmlFor="">Hiệu ứng âm thanh: </label>
+                                        <input type="range" min={0} max={100} name="" id="" className="w-full accent-black cursor-pointer flex-1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                }
             </div>
 
             {!isJoined && <PlayerJoinModal onConfirm={handleConfirmJoin} />}

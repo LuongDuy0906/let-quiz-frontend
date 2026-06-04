@@ -15,7 +15,7 @@ export const Header = () => {
     const [isVerify, setIsVerify] = useState(false);
 
     const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value.replace(/\D/g, ''); // Chỉ cho phép nhập số
+        const val = e.target.value.replace(/\D/g, '');
         if (val.length <= 6) {
             setPinInput(val);
         }
@@ -29,12 +29,16 @@ export const Header = () => {
             }
 
             try {
-                const data = await gameSessionService.getSessionId(pinInput);
+                const data = await gameSessionService.verifyRoomPin(pinInput);
 
-                if(data?.sessionId){
-                    sessionStorage.setItem(`room_quiz:${data?.sessionId}`, pinInput);
-                    router.push(`play/${data?.sessionId}`);
+                console.log(data)
+
+                if(data === false){
+                    toast.error("Mã PIN không hợp lệ");
+                    return;
                 }
+                
+                router.push(`${pinInput}`);
             } catch {
                 console.log(e);
                 toast.error("Lỗi khi xác thực mã PIN");

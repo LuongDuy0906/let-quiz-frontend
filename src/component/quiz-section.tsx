@@ -10,9 +10,9 @@ export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }:
     const router = useRouter();
 
     const handlePlayNow = async () => {
-        const sessionId = await gameSessionService.initGameSession(_id);
+        const data = await gameSessionService.initGameSession(_id);
 
-        if(sessionId){
+        if(data!.sessionId){
             const quiz = {
                 _id: _id,
                 title: title,
@@ -20,8 +20,8 @@ export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }:
                 image: image
             }
 
-            sessionStorage.setItem(`room_quiz:${sessionId}`, JSON.stringify(quiz));
-            router.push(`/play/${sessionId}`);
+            sessionStorage.setItem(`room_quiz:${data?.sessionId}`, JSON.stringify(quiz));
+            router.push(`/play/${data?.sessionId}`);
         }
     }
     return (

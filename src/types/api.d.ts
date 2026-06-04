@@ -31,8 +31,10 @@ export interface LibraryResponse {
 export interface QuizResponse {
     id: string;
     title: string;
-    description?: string;
+    question: any[];
     image?: string;
+    tag: string;
+    status: string;
 }
 
 export interface QuizzesResponse {

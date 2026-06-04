@@ -5,38 +5,44 @@ import { gameSessionService } from "@/features/game-session/game-session.service
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function WaitingRoomPage() {
+export default function WaitingRoomPageWithRoomPin() {
     const params = useParams();
-    const sessionId = params.sessionId!.toString();
-
-    const [roomPin, setRoomPin] = useState<string>('');
+    const roomPin = params.roomPin!.toString();
+    
     const [isMounted, setIsMounted] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const initRoom = async () => {
         setIsMounted(true);
-        try {
-            const savedPin = sessionStorage.getItem(`room_pin:${sessionId}`);
-            if (savedPin) {
-                setRoomPin(savedPin);
-                setLoading(false);
-            } else {
-                const existPin = await gameSessionService.getRoomPin(sessionId);
+        if (typeof window === 'undefined') return;
 
-                setRoomPin(existPin);
-                sessionStorage.setItem(`room_pin:${sessionId}`, existPin);
+        try {
+            const savedQuiz = sessionStorage.getItem(`room_quiz:${roomPin}`);
+
+            if (roomPin && savedQuiz) {
                 setLoading(false);
+                return;
             }
+
+            if (roomPin && !savedQuiz) {
+                const data = await gameSessionService.getGameSession(roomPin);
+                if (data?.quizInfo) {
+                    sessionStorage.setItem(`room_quiz:${roomPin}`, JSON.stringify(data.quizInfo));
+                }
+                setLoading(false);
+                return;
+            }
+            
         } catch (error) {
-            console.log("Không tìm được thông tin phòng chơi", error)
+            console.log("Không tìm được thông tin phòng chơi", error); //
         } finally {
-            setLoading(false);
+            setLoading(false); //
         }
-    }
+    };
 
     useEffect(() => {
         initRoom();
-    }, [sessionId]);
+    }, [roomPin]);
 
     if (loading) {
         return (
@@ -51,7 +57,7 @@ export default function WaitingRoomPage() {
             <div className="flex flex-none w-full h-24 bg-[#4E62A8]/87 px-10 shadow-[0_0_10px_rgba(0,0,0,1)]">
                 <a href="/" className="flex items-center h-full w-sm"><img src="/image/let_quiz_logo.png" className="h-20 w-md" alt="Let Quiz Logo" /></a>
             </div>
-            <Lobby sessionId={sessionId} pin={roomPin}/>
+            <Lobby pin={roomPin}/>
         </div>
     );
 }

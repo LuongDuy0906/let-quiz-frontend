@@ -3,7 +3,7 @@ import { GameSessionResponse, VerifyPinResponse } from "@/types/api";
 import { toast } from "react-toastify";
 
 export const gameSessionService = {
-    initGameSession: async (quizId: string): Promise<string | null> => {
+    initGameSession: async (quizId: string): Promise<GameSessionResponse | null> => {
         try {
             const response = await apiFetch('/game-session/init', {
                 method: 'POST',
@@ -18,7 +18,7 @@ export const gameSessionService = {
             }
 
             toast.success("Phòng học được tạo thành công");
-            return data.sessionId;
+            return data;
         } catch (error: any) {
             console.error('Init game session failed:', error.message);
             toast.error(error.message);
@@ -26,32 +26,29 @@ export const gameSessionService = {
         }
     },
 
-    getSessionId: async (roomPin: string): Promise<VerifyPinResponse | null> => {
+    getGameSession: async (roomPin: string): Promise<any | null> => {
         try {
-            const response = await apiFetch('/game-session/verify-pin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ roomPin })
+            const response = await apiFetch(`/game-session/get-game-session-and-room-pin/${roomPin}`, {
+                method: 'GET',
             });
 
-            console.log(response);
-
-            const data = await handleApiResponse<VerifyPinResponse>(response);
+            const data = await handleApiResponse(response);
             return data;
         } catch (error: any) {
-            console.error('Verify pin failed:', error.message);
+            console.error('Get room pin failed:', error.message);
             toast.error(error.message);
             return null;
         }
     },
 
-    getRoomPin: async (sessionId: string): Promise<any | null> => {
+    verifyRoomPin: async (roomPin: string): Promise<any | null> => {
         try {
-            const response = await apiFetch(`/game-session/get-room-pin/${sessionId}`, {
-                method: 'GET',
-            });
+            const response = await apiFetch(`/game-session/verify-pin/${roomPin}`, {
+                method: 'GET'
+            })
 
             const data = await handleApiResponse(response);
+
             return data;
         } catch (error: any) {
             console.error('Get room pin failed:', error.message);

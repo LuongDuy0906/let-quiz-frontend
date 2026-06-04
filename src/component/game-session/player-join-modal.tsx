@@ -1,15 +1,18 @@
 'use client'
 
+import { useUser } from "@/providers/user.provider";
 import { useState, useEffect } from "react";
 
 interface PlayerJoinModalProps {
-    onConfirm: (nickname: string, avatarSeed: string) => void;
+    onConfirm: (nickname: string, avatarSeed: string, userId: string | null) => void;
 }
 
 export const PlayerJoinModal = ({ onConfirm }: PlayerJoinModalProps) => {
     const [name, setName] = useState('');
-     
+    const {user} = useUser();
     const [avatarSeed, setAvatarSeed] = useState('default');
+
+    const userId = user?.id || user?._id || null
 
     useEffect(() => {
         const randomSeed = Math.floor(1000 + Math.random() * 9000).toString();
@@ -24,7 +27,7 @@ export const PlayerJoinModal = ({ onConfirm }: PlayerJoinModalProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim()) return;
-        onConfirm(name.trim(), avatarSeed); 
+        onConfirm(name.trim(), avatarSeed, userId); 
     };
 
     return (
