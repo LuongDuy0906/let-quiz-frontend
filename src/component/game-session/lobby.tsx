@@ -28,9 +28,15 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
     
     const [isJoined, setIsJoined] = useState(false);
 
+    const [gameSettings, setGameSettings] = useState({
+        showLeaderBoard: true,
+        shuffleQuestions: false,
+        shuffleOptions: false
+    })
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setJoinRoomUrl(`${window.location.origin}/play/${pin}`);
+            setJoinRoomUrl(`${window.location.origin}/${pin}`);
         }
         setIsMounted(true);
 
@@ -59,6 +65,15 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
 
         setIsJoined(true);
     };
+
+    const handleSettingsChange = (key: keyof typeof gameSettings) => {
+        if(!sessionId) return;
+
+        setGameSettings(prev => ({
+            ...prev,
+            [key]: !prev[key]
+        }))
+    }
 
     useEffect(() => {
         if (!socket) return;
@@ -206,15 +221,15 @@ export const Lobby = ({ sessionId, pin }: LobbyProps) => {
                                 <h3 className="text-xl font-medium [text-shadow:-2px_-2px_0_#000,2px_-2px_0_#000,-2px_2px_0_#000,2px_2px_0_#000]">Phòng chơi</h3>
                                 <div className="flex flex-col w-full justify-between">
                                     <div className="flex flex-row gap-5 mt-5 items-center">
-                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <input type="checkbox" checked={gameSettings.showLeaderBoard} onChange={() => handleSettingsChange('showLeaderBoard')} className="w-5 h-5"/>
                                         <label htmlFor="" className="text-xl font-normal">Hiện thị bảng xếp hạng</label>
                                     </div>
                                     <div className="flex flex-row gap-5 mt-5 items-center">
-                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <input type="checkbox" checked={gameSettings.shuffleQuestions} onChange={() => handleSettingsChange('shuffleQuestions')} className="w-5 h-5"/>
                                         <label htmlFor="" className="text-xl font-normal">Tráo đổi vị trí câu hỏi</label>
                                     </div>
                                     <div className="flex flex-row gap-5 mt-5 items-center">
-                                        <input type="checkbox" className="w-5 h-5"/>
+                                        <input type="checkbox" checked={gameSettings.shuffleOptions} onChange={() => handleSettingsChange('shuffleOptions')} className="w-5 h-5"/>
                                         <label htmlFor="" className="text-xl font-normal">Tráo đổi vị trí đáp án</label>
                                     </div>
                                 </div>
