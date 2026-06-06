@@ -143,9 +143,9 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
 
     return (
         <div className="flex flex-col h-screen overflow-hidden">
-            <div className="flex flex-none flex-row h-auto gap-5 bg-[#4E62A8]/87 justify-center items-center p-1 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
-                <div className="flex flex-none justify-center items-center w-sm h-20">
-                    <a href="/" className="h-full w-sm"><img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" /></a>
+            <div className="flex flex-none flex-row h-auto gap-5 pl-5 bg-[#4E62A8]/87 justify-center items-center p-1 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
+                <div className="flex flex-none justify-center items-center w-50 h-20">
+                    <a href="/" className="h-full w-full flex justify-center"><img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" /></a>
                 </div>
                 <div className="flex flex-1 items-center justify-start gap-6 h-10">
                     <div onClick={handleSaveQuiz} className="bg-[#15A440] pb-2 text-white font-bold text-2xl flex items-center justify-center w-35 h-12 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300">

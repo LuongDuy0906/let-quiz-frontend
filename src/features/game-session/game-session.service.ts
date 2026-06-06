@@ -73,5 +73,20 @@ export const gameSessionService = {
             toast.error(e.message);
             return null;
         }
+    },
+
+    startGame: async (roomPin: string, sessionId: string) => {
+        try {
+            const response = await apiFetch('game-session/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({roomPin, sessionId})
+            });
+            
+        } catch (e: any) {
+            console.error('Thay đổi cài đặt thất bại', e.message);
+            toast.error(e.message);
+            return null;
+        }
     }
 };

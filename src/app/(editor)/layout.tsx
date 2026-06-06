@@ -19,7 +19,7 @@ export default function EditorLayout({
             <head>
                 <link rel="icon" href="image/let_quiz_logo.png" />
             </head>
-            <body className="bg-[#4E62A8]/87 flex flex-col min-h-screen">
+            <body className="flex flex-col min-h-screen">
                 {children}
                 <ToastContainer 
                 position="top-right"

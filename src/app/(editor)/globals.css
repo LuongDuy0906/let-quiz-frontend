@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Background layer */
+body::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    background-image: url("/image/editor-background.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    z-index: -2;
+
+    animation: diagonalMove 5s linear infinite alternate;
+}
+
+/* Optional overlay */
+body::after {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+@keyframes diagonalMove {
+    from {
+        transform: scale(1.05) translate(30px, -30px);
+    }
+
+    to {
+        transform: scale(1.05) translate(-30px, 30px);
+    }
+}

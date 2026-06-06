@@ -21,7 +21,7 @@ export default function RootLayout({
             <head>
                 <link rel="icon" href="image/let_quiz_logo.png" />
             </head>
-            <body className="bg-[#E0E7FF]">
+            <body className="">
                 <UserProvider>
                     <Header />
                     {children}
