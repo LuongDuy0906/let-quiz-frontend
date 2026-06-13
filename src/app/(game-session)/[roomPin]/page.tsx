@@ -1,6 +1,7 @@
 'use client';
 
 import { Lobby } from "@/component/game-session/lobby";
+import { QuizPlayEngine } from "@/component/game-session/quiz-play-engine";
 import { gameSessionService } from "@/features/game-session/game-session.service";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -87,6 +88,7 @@ export default function WaitingRoomPageWithRoomPin() {
             socket.off("gameStarted");
             socket.off("gameFinished");
             socket.off("error");
+            socket.disconnect();
         };
     }, [socket, roomPin]);
 
@@ -138,15 +140,11 @@ export default function WaitingRoomPageWithRoomPin() {
             )}
 
             {roomStatus === 'PLAYING' && (
-                <div className="text-white p-10">
-                    {/* Component Đấu trường làm bài Test Engine của Người chơi nạp ở đây */}
-                    <h2>Đấu trường Let Quiz chính thức bắt đầu! Hãy tập trung làm bài</h2>
-                </div>
+                <QuizPlayEngine roomPin={roomPin} />
             )}
 
             {roomStatus === 'FINISHED' && (
                 <div className="text-white p-10">
-                    {/* Component Tổng kết thứ hạng cá nhân của Người chơi nạp ở đây */}
                     <h2>Trận đấu kết thúc! Xem thứ hạng của bạn</h2>
                 </div>
             )}

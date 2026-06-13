@@ -77,7 +77,7 @@ export const gameSessionService = {
 
     startGame: async (roomPin: string, sessionId: string) => {
         try {
-            const response = await apiFetch('game-session/start', {
+            await apiFetch('game-session/start', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({roomPin, sessionId})

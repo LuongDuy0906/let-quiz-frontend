@@ -1,6 +1,7 @@
 'use client';
 
 import { Lobby } from "@/component/game-session/lobby";
+import { QuizPlayEngine } from "@/component/game-session/quiz-play-engine";
 import { gameSessionService } from "@/features/game-session/game-session.service";
 import { useUser } from "@/providers/user.provider";
 import { useParams } from "next/navigation";
@@ -51,6 +52,10 @@ export default function WaitingRoomPageWithSessionId() {
             setRoomStatus('PLAYING');
         });
 
+        socket.on("gameFinished", () => {
+            setRoomStatus('FINISHED');
+        });
+
         socket.on("error", (err: { message: string }) => {
             toast.error(err.message);
             setIsJoined(false);
@@ -59,7 +64,9 @@ export default function WaitingRoomPageWithSessionId() {
         return () => {
             socket.off("playerListUpdate");
             socket.off("gameStarted");
+            socket.off("gameFinished");
             socket.off("error");
+            socket.disconnect();
         };
     }, [socket]);
 
@@ -139,9 +146,7 @@ export default function WaitingRoomPageWithSessionId() {
             )}
 
             {roomStatus === 'PLAYING' && (
-                <div className="text-white p-10">
-                    <h2>Đấu trường Let Quiz chính thức bắt đầu!</h2>
-                </div>
+                <QuizPlayEngine roomPin={roomPin} sessionId={sessionId} />
             )}
 
             {roomStatus === 'FINISHED' && (
