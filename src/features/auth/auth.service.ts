@@ -111,7 +111,6 @@ export const authService = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email }),
-                skipAuth: true,
             });
 
             await handleApiResponse(response);
@@ -155,7 +154,6 @@ export const authService = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email }),
-                skipAuth: true,
             });
 
             await handleApiResponse(response);
@@ -177,7 +175,6 @@ export const authService = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, token }),
-                skipAuth: true,
             });
 
             const data = await handleApiResponse(response);

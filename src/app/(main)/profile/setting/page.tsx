@@ -81,11 +81,9 @@ export default function SettingPage() {
             const updatedUser = await userService.updateProfile(username);
             if (updatedUser) {
                 setUser(updatedUser);
-                alert("Cập nhật thông tin thành công!");
             }
         } catch (error) {
             console.error("Lỗi cập nhật profile:", error);
-            alert("Không thể cập nhật tên người dùng.");
         } finally {
             setIsProfileUpdating(false);
         }
@@ -140,7 +138,7 @@ export default function SettingPage() {
     }, [previewImage]);
 
     return (
-        <div className="flex flex-col gap-10 justify-center items-center p-10 bg-[#E0E7FF] min-h-screen">
+        <div className="flex flex-col gap-10 justify-center items-center p-10 min-h-screen">
             
             {/* BOX 1: FORM AVATAR (TỰ ĐỘNG LƯU) */}
             <div className="flex flex-col items-center p-8 border rounded-2xl bg-[#DFDDDD] shadow-lg w-full max-w-xl">

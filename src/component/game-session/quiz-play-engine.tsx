@@ -206,11 +206,11 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
                         'bg-emerald-500 hover:bg-emerald-600 text-white'
                     ];
                     const selectedColor = colors[index % colors.length];
-                    const isCurrentSelected = selectedAnswerId === opt.id;
+                    const isCurrentSelected = selectedAnswerId === opt._id;
 
                     return (
                         <button
-                            key={opt.id}
+                            key={opt._id}
                             disabled={hasSubmitted || gameState !== 'PLAYING'}
                             onClick={() => handleSubmitAnswer(opt.id)}
                             className={`w-full h-24 rounded-2xl border-4 border-black font-black text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center px-6 relative cursor-pointer group text-left ${selectedColor} ${
