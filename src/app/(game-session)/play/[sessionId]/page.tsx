@@ -44,8 +44,12 @@ export default function WaitingRoomPageWithSessionId() {
     useEffect(() => {
         if (!socket) return;
 
-        socket.on("playerListUpdate", (updatedPlayers: any[]) => {
-            setPlayerList(updatedPlayers);
+        socket.on("playerListUpdate", (data: any) => {
+            if (data && data.playerList) {
+                setPlayerList(data.playerList); 
+            } else if (Array.isArray(data)) {
+                setPlayerList(data);
+            }
         });
 
         socket.on("gameStarted", () => {
