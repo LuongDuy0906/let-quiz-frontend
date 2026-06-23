@@ -1,3 +1,4 @@
+import { QuizTag } from "@/constants/constants";
 import { apiFetch, handleApiResponse } from "@/lib/api";
 import { QuizzesResponse, ImageUploadResponse, QuizResponse } from "@/types/api";
 import { toast } from "react-toastify";
@@ -76,6 +77,26 @@ export const quizService = {
         } catch (error: any) {
             console.error('Save quiz failed:', error.message);
             toast.error(error.message);
+            return null;
+        }
+    },
+
+    quizGenerate: async (prompt: string, questionCount: number, timeLimit: number, tags: QuizTag[]) => {
+        try {
+            const response = await apiFetch('quiz/generate-preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({prompt, questionCount, timeLimit, tags})
+            });
+
+            const data = await handleApiResponse(response);
+
+            return data;
+        } catch (e: any) {
+            console.error('Save quiz failed:', e.message);
+            toast.error(e.message);
             return null;
         }
     }

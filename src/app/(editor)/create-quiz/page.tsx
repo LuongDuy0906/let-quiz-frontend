@@ -4,38 +4,55 @@ import { QuestionEditor } from "@/component/editor/question-editor";
 import { TypeSelector } from "@/component/editor/type-seletor";
 import { base64toFile, createDefaultQuestion, createDefaultQuiz, EditorStep } from "@/constants/constants";
 import { Eye, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SettingPage } from "@/component/editor/setting";
 import { quizService } from "@/features/quiz/quiz.service";
+import { toast } from "react-toastify";
 
-interface ExistQuizProp {
-    existQuiz?: any; 
-}
-
-export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
-    const [currentStep, setCurrentStep] = useState<EditorStep>(() => {
-        if(existQuiz) {
-            return 'setting';
-        }
-        return 'type-selector';
-    });
-
+export default function CreateQuizPage() {
+    const [quiz, setQuiz] = useState<any>(null);
+    const [currentStep, setCurrentStep] = useState<EditorStep>('type-selector');
     const [activeIndex, setActiveIndex] = useState(0);
     const [onSetting, setOnSetting] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
-    const [quiz, setQuiz] = useState(() => {
-        if(existQuiz) {
-            return existQuiz
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const rawData = sessionStorage.getItem('generated_quiz_preview');
+        
+        if (rawData) {
+            try {
+                const sharedQuizData = JSON.parse(rawData);
+                setQuiz(sharedQuizData);
+
+                if (sharedQuizData && (sharedQuizData._id || sharedQuizData.id)) {
+                    setCurrentStep('setting');
+                    setOnSetting(true);
+                } else if (sharedQuizData && sharedQuizData.question && sharedQuizData.question.length > 0) {
+                    setCurrentStep(sharedQuizData.question[0].questionType || 'single');
+                    setOnSetting(false);
+                }
+
+                sessionStorage.removeItem('generated_quiz_preview');
+                console.log("🧹 Đã dọn dẹp sessionStorage an toàn!");
+            } catch (error) {
+                console.error("Lỗi đọc dữ liệu:", error);
+                setQuiz(createDefaultQuiz());
+            }
+        } else {
+            setQuiz(createDefaultQuiz());
         }
-        return createDefaultQuiz();
-    });
+        
+        setIsInitialized(true);
+    }, []);
 
     const handleUpdateQuizMetadata = (fields: any) => {
-        setQuiz(prev => ({ ...prev, ...fields }));
+        setQuiz((prev: any) => ({ ...prev, ...fields }));
     };
 
     const handleUpdateQuestion = (index: number, updatedFields: any) => {
-        setQuiz(prev => {
+        setQuiz((prev: any) => {
             const newQuestions = [...prev.question];
             newQuestions[index] = { ...newQuestions[index], ...updatedFields };
             return { ...prev, question: newQuestions };
@@ -48,9 +65,9 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
             return;
         }
 
-        setQuiz(prev => ({
+        setQuiz((prev: any) => ({
             ...prev,
-            questions: prev.question.filter((_: any, i: number) => i !== indexToDelete)
+            question: prev.question.filter((_: any, i: number) => i !== indexToDelete)
         }));
 
         if (indexToDelete <= activeIndex && activeIndex > 0) {
@@ -60,42 +77,31 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
 
     const addNewQuestion = () => {
         const newEmptyQ = createDefaultQuestion('single');
-        
-        setQuiz(prev => ({
+        setQuiz((prev: any) => ({
             ...prev,
-            questions: [...prev.question, newEmptyQ]
+            question: [...prev.question, newEmptyQ]
         }));
-        
         setActiveIndex(quiz.question.length);
         setCurrentStep('type-selector');
     };
 
     const selectTypeAndAdd = (type: 'single' | 'multiple') => {
         const defaultData = createDefaultQuestion(type);
-        
         handleUpdateQuestion(activeIndex, {
             ...defaultData,
             questionType: type
         });
-
         setCurrentStep(type);
     };
 
     const renderComponent = () => {
-        const currentQuestion = quiz.question[activeIndex];
+        const currentQuestion = quiz?.question?.[activeIndex];
+        if (!currentQuestion && currentStep !== 'setting') return null;
         
         switch (currentStep) {
             case 'type-selector':
                 return <TypeSelector onSelect={selectTypeAndAdd}/>
             case 'single':
-                return (
-                    <QuestionEditor 
-                        question={currentQuestion} 
-                        index={activeIndex} 
-                        onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
-                        type={currentStep} 
-                    />
-                );
             case 'multiple':
                 return (
                     <QuestionEditor 
@@ -118,7 +124,6 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
         if(quiz.image && quiz.image.startsWith('data:image')){
             const file = await base64toFile(quiz.image, 'quiz-cover.png');
             const res = await quizService.uploadQuizImage(file);
-
             finalQuizImage = res;
         };
 
@@ -126,10 +131,8 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
             if(q.image && q.image.startsWith('data:image')){
                 const file = await base64toFile(q.image, `image-${index}.png`);
                 const res = await quizService.uploadQuizImage(file);
-
                 return {...q, image: res}
             }
-
             return q;
         }))
 
@@ -141,33 +144,39 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
         await quizService.saveQuiz(finalQuizData);
     }
 
+    if (!isInitialized) {
+        return (
+            <div className="w-screen h-screen flex items-center justify-center bg-[#4E62A8] text-white font-bold text-xl">
+                Đang nạp cấu trúc bộ đề...
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-screen overflow-hidden">
             <div className="flex flex-none flex-row h-auto gap-5 pl-5 bg-[#4E62A8]/87 justify-center items-center p-1 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
                 <div className="flex flex-none justify-center items-center w-50 h-20">
-                    <a href="/" className="h-full w-full flex justify-center"><img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" /></a>
+                    <a href="/" className="h-full w-full flex justify-center">
+                        <img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" />
+                    </a>
                 </div>
                 <div className="flex flex-1 items-center justify-start gap-6 h-10">
-                    <div onClick={handleSaveQuiz} className="bg-[#15A440] pb-2 text-white font-bold text-2xl flex items-center justify-center w-35 h-12 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300">
+                    <div onClick={handleSaveQuiz} className="bg-[#15A440] pb-2 text-white font-bold text-2xl flex items-center justify-center w-35 h-12 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300 cursor-pointer">
                         Lưu
                     </div>
-                    <div className="flex flex-row bg-[#43569A] text-white justify-center items-center w-35 h-12 rounded-2xl gap-2 font-medium" >
-                        <div>
-                            <Eye />
-                        </div>
-                        <div>
-                            Xem trước
-                        </div>
+                    <div className="flex flex-row bg-[#43569A] text-white justify-center items-center w-35 h-12 rounded-2xl gap-2 font-medium cursor-pointer" >
+                        <div><Eye /></div>
+                        <div>Xem trước</div>
                     </div>
                 </div>
             </div>
-            {/* Vùng hiển thị Editor */}
+            
             <div className="flex-1 overflow-y-auto">
                 {renderComponent()}
             </div>
+            
             <div className="flex flex-none flex-row w-full h-25 bg-[#6F82C7] shadow-[0_0_20px_rgba(0,0,0,1)] pt-1 pb-1 pl-5 pr-5">
                 <div className="flex flex-1 flex-row items-center justify-start gap-4 overflow-x-auto scrollbar-hide">
-                    {/* Nút Cài đặt - Có thể mở Modal để sửa quiz.title/description */}
                     <button onClick={() => {
                             setOnSetting(true);
                             setActiveIndex(-1);
@@ -178,12 +187,12 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
                     </button>
 
                     {
-                        quiz.question.map((_: any, index: number) => (
+                        quiz?.question?.map((_: any, index: number) => (
                             <div 
                                 key={index} 
                                 onClick={() => {
                                     setActiveIndex(index);
-                                    setCurrentStep(quiz.question[index].type || 'type-selector');
+                                    setCurrentStep(quiz.question[index].questionType || 'type-selector');
                                     setOnSetting(false);
                                 }}
                                 className={`h-20 w-30 text-sm text-white font-bold rounded-xl cursor-pointer flex flex-row p-1 flex-none transition-all
@@ -194,9 +203,7 @@ export default function CreateQuizPage({existQuiz}: ExistQuizProp) {
                                     <p>{index + 1}</p>
                                 </div>
                                 <div className="flex-1 flex justify-center items-center">
-                                    <div className="h-10 w-13 bg-[#3B56B4] border-black border rounded-sm">
-                                        {/* Có thể hiện thumbnail ảnh ở đây */}
-                                    </div>                                   
+                                    <div className="h-10 w-13 bg-[#3B56B4] border-black border rounded-sm"></div>                                     
                                 </div>
                             </div>
                         ))

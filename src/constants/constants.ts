@@ -8,10 +8,10 @@ export const HERO_SECTION_DATA = [
         text3: "Sáng tạo"
     },
     {
-        image: "/image/hero_section_image/hero_left_image.png",
-        text1: "Tạo bộ đề",
-        text2: "Sáng tạo nên bộ đề của riêng mình",
-        text3: "Sáng tạo"
+        image: "/image/hero_section_image/hero_right_image.png",
+        text1: "Tạo bộ đề với AI",
+        text2: "Sáng tạo bộ đề chỉ với ý tưởng",
+        text3: "Khởi tạo"
     }
 ]
 
@@ -74,4 +74,15 @@ export const base64toFile = async (base64: string, fileName: string) => {
     const blob = await res.blob();
 
     return new File([blob], fileName, {type: blob.type});
+}
+
+
+export enum QuizTag {
+  ENTERTAINMENT = "Entertainment",
+  SPORT = "Sport",
+  ART = "Art & Literature",
+  GEOGRAPHY = "Geography",
+  HISTORY = "History",
+  SCIENCE = "Science & Nature",
+  TRIVIA = "Trivia"
 }
