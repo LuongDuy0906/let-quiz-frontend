@@ -97,14 +97,12 @@ export default function WaitingRoomPageWithSessionId() {
         if (!sessionId) return;
 
         try {
-            const settingsResult = await gameSessionService.updateGameSessionSetting(
+            await gameSessionService.updateGameSessionSetting(
                 gameSettings.showLeaderboard,
                 gameSettings.shuffleQuestions,
                 gameSettings.shuffleOptions,
                 roomPin
             );
-
-            if (!settingsResult) return;
 
             const startResult = await gameSessionService.startGame(roomPin, sessionId);
 

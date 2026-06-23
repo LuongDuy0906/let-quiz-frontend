@@ -13,7 +13,7 @@ export default function QuizGenerate() {
 
     const [prompt, setPrompt] = useState('');
     const [numQuestions, setNumQuestions] = useState<number>(3);
-    const [timeLimit, setTimeLimit] = useState<number>(10);
+    const [timeLimit, setTimeLimit] = useState<number>(20);
     
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedTopics, setSelectedTopics] = useState<QuizTag[]>([]);
@@ -59,15 +59,13 @@ export default function QuizGenerate() {
                 return;
             } 
 
-            // Bọc riêng khâu ghi vào Storage để check lỗi JSON
             try {
                 const jsonString = JSON.stringify(quizPreview);
                 console.log("3. Ép kiểu JSON thành công, tiến hành lưu...");
                 sessionStorage.setItem('generated_quiz_preview', jsonString);
             } catch (jsonError) {
-                console.error("❌ LỖI CHÍ MẠNG: Không thể ép kiểu dữ liệu sang JSON!", jsonError);
                 toast.error('Dữ liệu từ AI sai cấu trúc, không thể lưu tạm!');
-                return; // Ngắt luồng, không chuyển trang vì không có dữ liệu
+                return;
             }
 
             toast.success('Khởi tạo bộ đề thành công');
@@ -127,9 +125,9 @@ export default function QuizGenerate() {
                                     onChange={(e) => setTimeLimit(Number(e.target.value))}
                                     className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none"
                                 >
-                                    <option value={10} className="text-black">10 giây</option>
-                                    <option value={15} className="text-black">15 giây</option>
                                     <option value={20} className="text-black">20 giây</option>
+                                    <option value={25} className="text-black">25 giây</option>
+                                    <option value={30} className="text-black">30 giây</option>
                                 </select>
                                 <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-white" />
                             </div>

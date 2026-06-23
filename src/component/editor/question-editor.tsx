@@ -14,7 +14,7 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const correctOpt = question?.option?.find((opt: any) => opt?.isCorrect);
+    const correctOpt = question?.options?.find((opt: any) => opt?.isCorrect);
 
     const handleFieldChange = (field: string, value: string ) => {
         onUpdate({[field]: value});
@@ -127,7 +127,7 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
                             </div>
                             <div>
                                 {
-                                    question.option
+                                    question.options
                                         .filter((opt: any) => !opt?.isCorrect)
                                             .map((item: any, index: number, filteredArray: any[]) => (
                                                 <div key={index}>
@@ -145,10 +145,10 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
                         </div>
                         <div>
                             {
-                                question.option.map((item: any, index: number) => (
+                                question.options.map((item: any, index: number) => (
                                     <div key={index} className="flex flex-row">
                                         <div className={`flex-none w-15 h-15`}>
-                                            <button onClick={() => handleToggleCorrect(item)} className={`flex justify-center items-center font-bold text-white w-full h-full ${item.isCorrect === true ? 'bg-[#18C574]' : 'bg-[#DE1D20]'} border-5 border-[#3A3C3B] ${index === question.option.length - 1 ? 'rounded-bl-md' : ''} shadow-[inset_0px_-4px_4px_0px_rgba(0,0,0,0.5)]`}>
+                                            <button onClick={() => handleToggleCorrect(item)} className={`flex justify-center items-center font-bold text-white w-full h-full ${item.isCorrect === true ? 'bg-[#18C574]' : 'bg-[#DE1D20]'} border-5 border-[#3A3C3B] ${index === question.options.length - 1 ? 'rounded-bl-md' : ''} shadow-[inset_0px_-4px_4px_0px_rgba(0,0,0,0.5)]`}>
                                                 {
                                                     item.isCorrect === true ? <Check/> : <X />
                                                 }

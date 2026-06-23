@@ -59,15 +59,12 @@ export const gameSessionService = {
 
     updateGameSessionSetting: async (showLeaderBoard: boolean, shuffleQuestion: boolean, shuffleOption: boolean, roomPin: string) => {
         try {
-            const response = await apiFetch(`game-session/${roomPin}/settings`, {
+            await apiFetch(`game-session/${roomPin}/settings`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({showLeaderBoard, shuffleQuestion, shuffleOption}) 
             });
 
-            const data = await handleApiResponse(response);
-
-            return data;
         } catch (e: any) {
             console.error('Thay đổi cài đặt thất bại', e.message);
             toast.error(e.message);

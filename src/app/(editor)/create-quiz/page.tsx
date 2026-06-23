@@ -25,9 +25,13 @@ export default function CreateQuizPage() {
                 const sharedQuizData = JSON.parse(rawData);
                 setQuiz(sharedQuizData);
 
-                if (sharedQuizData) {
+                if (sharedQuizData && (sharedQuizData._id || sharedQuizData.id)) {
                     setCurrentStep('setting');
                     setOnSetting(true);
+                } else if (sharedQuizData && sharedQuizData.question && sharedQuizData.question.length > 0) {
+                    setActiveIndex(0);
+                    setCurrentStep(sharedQuizData.question[0].questionType || 'single');
+                    setOnSetting(false);
                 } else {
                     setCurrentStep('type-selector');
                     setOnSetting(false);
@@ -52,7 +56,7 @@ export default function CreateQuizPage() {
         setQuiz((prev: any) => {
             const newQuestions = [...prev.question];
             newQuestions[index] = { ...newQuestions[index], ...updatedFields };
-            return { ...prev, question: newQuestions };
+            return { ...prev, questions: newQuestions };
         });
     };
     
@@ -64,7 +68,7 @@ export default function CreateQuizPage() {
 
         setQuiz((prev: any) => ({
             ...prev,
-            question: prev.question.filter((_: any, i: number) => i !== indexToDelete)
+            questions: prev.questions.filter((_: any, i: number) => i !== indexToDelete)
         }));
 
         if (indexToDelete <= activeIndex && activeIndex > 0) {
@@ -76,9 +80,9 @@ export default function CreateQuizPage() {
         const newEmptyQ = createDefaultQuestion('single');
         setQuiz((prev: any) => ({
             ...prev,
-            question: [...prev.question, newEmptyQ]
+            questions: [...prev.questions, newEmptyQ]
         }));
-        setActiveIndex(quiz.question.length);
+        setActiveIndex(quiz.questions.length);
         setCurrentStep('type-selector');
     };
 
@@ -92,21 +96,31 @@ export default function CreateQuizPage() {
     };
 
     const renderComponent = () => {
+        // 🌟 SỬA TẠI ĐÂY: Thay quiz?.questions bằng quiz?.question (Bỏ chữ 's')
         const currentQuestion = quiz?.questions?.[activeIndex];
         if (!currentQuestion && currentStep !== 'setting') return null;
+
+        const isPreExistingQuestion = !!(currentQuestion?.questionType || currentQuestion?.content);
         
         switch (currentStep) {
             case 'type-selector':
-                return <TypeSelector onSelect={selectTypeAndAdd}/>
+                if (isPreExistingQuestion) {
+                    const activeType = currentQuestion.questionType === 'multiple' || currentQuestion.questionType === 'MULTIPLE_CHOICE' 
+                        ? 'multiple' 
+                        : 'single';
+                    
+                    return (
+                        <QuestionEditor 
+                            question={currentQuestion} 
+                            index={activeIndex} 
+                            onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
+                            type={activeType} 
+                        />
+                    );
+                }
+            // Ngược lại, nếu là câu hỏi mới tinh thủ công chưa có gì, vẫn hiện bảng chọn loại như cũ
+            return <TypeSelector onSelect={selectTypeAndAdd}/>;
             case 'single':
-                return (
-                    <QuestionEditor 
-                        question={currentQuestion} 
-                        index={activeIndex} 
-                        onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
-                        type={currentStep} 
-                    />
-                );
             case 'multiple':
                 return (
                     <QuestionEditor 
@@ -132,7 +146,7 @@ export default function CreateQuizPage() {
             finalQuizImage = res;
         };
 
-        const updatedQuestion = await Promise.all(quiz.question.map(async (q: any, index: number) => {
+        const updatedQuestion = await Promise.all(quiz.questions.map(async (q: any, index: number) => {
             if(q.image && q.image.startsWith('data:image')){
                 const file = await base64toFile(q.image, `image-${index}.png`);
                 const res = await quizService.uploadQuizImage(file);
@@ -144,7 +158,7 @@ export default function CreateQuizPage() {
         const finalQuizData = {
             ...quiz,
             image: finalQuizImage,
-            question: updatedQuestion
+            questions: updatedQuestion
         }
         await quizService.saveQuiz(finalQuizData);
     }
@@ -191,13 +205,14 @@ export default function CreateQuizPage() {
                         Cài đặt
                     </button>
 
+                    {/* 🌟 ĐẢM BẢO ĐỒNG BỘ DÙNG ĐÚNG THUỘC TÍNH SỐ ÍT: quiz?.question */}
                     {
-                        quiz?.question?.map((_: any, index: number) => (
+                        quiz?.questions?.map((_: any, index: number) => (
                             <div 
                                 key={index} 
                                 onClick={() => {
                                     setActiveIndex(index);
-                                    setCurrentStep(quiz.question[index].questionType || 'type-selector');
+                                    setCurrentStep(quiz.questions[index].questionType || 'type-selector');
                                     setOnSetting(false);
                                 }}
                                 className={`h-20 w-30 text-sm text-white font-bold rounded-xl cursor-pointer flex flex-row p-1 flex-none transition-all
