@@ -44,7 +44,7 @@ export const createDefaultQuestion = (type?: 'single' | 'multiple'): any => {
         questionType: type ? type : null,
         timeLimit: 30, 
         point: 1000,
-        option: [
+        options: [
             { content: "required", isCorrect: true },
             { content: "required", isCorrect: false },
             { content: "required", isCorrect: false },
@@ -59,7 +59,7 @@ export const createDefaultQuiz = () => {
         title: 'required',
         image: '',
         description: 'optional',
-        question: [createDefaultQuestion()],
+        questions: [createDefaultQuestion()],
         tag: [
             'required'
         ],

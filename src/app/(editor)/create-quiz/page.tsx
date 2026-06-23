@@ -7,7 +7,6 @@ import { Eye, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SettingPage } from "@/component/editor/setting";
 import { quizService } from "@/features/quiz/quiz.service";
-import { toast } from "react-toastify";
 
 export default function CreateQuizPage() {
     const [quiz, setQuiz] = useState<any>(null);
@@ -26,16 +25,14 @@ export default function CreateQuizPage() {
                 const sharedQuizData = JSON.parse(rawData);
                 setQuiz(sharedQuizData);
 
-                if (sharedQuizData && (sharedQuizData._id || sharedQuizData.id)) {
+                if (sharedQuizData) {
                     setCurrentStep('setting');
                     setOnSetting(true);
-                } else if (sharedQuizData && sharedQuizData.question && sharedQuizData.question.length > 0) {
-                    setCurrentStep(sharedQuizData.question[0].questionType || 'single');
+                } else {
+                    setCurrentStep('type-selector');
                     setOnSetting(false);
                 }
 
-                sessionStorage.removeItem('generated_quiz_preview');
-                console.log("🧹 Đã dọn dẹp sessionStorage an toàn!");
             } catch (error) {
                 console.error("Lỗi đọc dữ liệu:", error);
                 setQuiz(createDefaultQuiz());
@@ -95,13 +92,21 @@ export default function CreateQuizPage() {
     };
 
     const renderComponent = () => {
-        const currentQuestion = quiz?.question?.[activeIndex];
+        const currentQuestion = quiz?.questions?.[activeIndex];
         if (!currentQuestion && currentStep !== 'setting') return null;
         
         switch (currentStep) {
             case 'type-selector':
                 return <TypeSelector onSelect={selectTypeAndAdd}/>
             case 'single':
+                return (
+                    <QuestionEditor 
+                        question={currentQuestion} 
+                        index={activeIndex} 
+                        onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
+                        type={currentStep} 
+                    />
+                );
             case 'multiple':
                 return (
                     <QuestionEditor 
