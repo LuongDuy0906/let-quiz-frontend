@@ -18,6 +18,7 @@ interface Props {
   name: string;
   createdAt: string;
   totalQuestions?: number;
+  type: string;
 }
 
 interface UserContextType {
@@ -57,4 +58,22 @@ interface QuizSelectorProps {
   type: string;
   logo: string;
   onClick?: () => void;
+}
+
+interface QuestionProps{
+  _id: string;
+  content: string;
+  image: string
+  questionType: string;
+  options: OptionProps[];
+  timeLimit: number;
+  information: string;
+  showQuestions: boolean;
+  showOptions: boolean;
+}
+
+interface OptionProps{
+  _id: string;
+  content: string;
+  isCorrect: boolean;
 }

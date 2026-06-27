@@ -103,9 +103,9 @@ export const authService = {
         }
     },
     
-    forgotPassword: async (email: string): Promise<PasswordResetResponse> => {
+    forgotPassword: async (email: string) => {
         try {
-            const response = await apiFetch('/auth/forgot-password', {
+            await apiFetch('/auth/forgot-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -113,12 +113,8 @@ export const authService = {
                 body: JSON.stringify({ email }),
             });
 
-            await handleApiResponse(response);
-            toast.success("Email xác nhận đã được gửi");
-            
-            return { success: true };
         } catch (error: any) {
-            console.error('Forgot password failed:', error.message);
+            console.error('Gửi email thất bại', error.message);
             toast.error(error.message);
             return { success: false, message: error.message };
         }

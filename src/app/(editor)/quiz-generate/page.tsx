@@ -19,6 +19,9 @@ export default function QuizGenerate() {
     const [selectedTopics, setSelectedTopics] = useState<QuizTag[]>([]);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    // 🌟 1. Thêm State quản lý trạng thái loading khi đang sinh câu hỏi bằng AI
+    const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
     const topicOptions = [
         { value: QuizTag.GEOGRAPHY, label: "Địa lý" },
         { value: QuizTag.HISTORY, label: "Lịch sử" },
@@ -48,35 +51,31 @@ export default function QuizGenerate() {
     };
 
     const handleGenerateQuiz = async () => {
+        const realPrompt = prompt.trim();
+
+        setIsGenerating(true);
+
         try {
-            console.log("1. Bắt đầu gọi API với data:", { prompt, numQuestions, timeLimit, selectedTopics });
-            const quizPreview = await quizService.quizGenerate(prompt, numQuestions, timeLimit, selectedTopics);
-
-            console.log("2. Kết quả API trả về (quizPreview):", quizPreview);
-
-            if (!quizPreview) {
-                toast.error('Khởi tạo bộ đề thất bại');
-                return;
-            } 
+            const quizPreview = await quizService.quizGenerate(realPrompt, numQuestions, timeLimit, selectedTopics);
 
             try {
                 const jsonString = JSON.stringify(quizPreview);
-                console.log("3. Ép kiểu JSON thành công, tiến hành lưu...");
                 sessionStorage.setItem('generated_quiz_preview', jsonString);
             } catch (jsonError) {
                 toast.error('Dữ liệu từ AI sai cấu trúc, không thể lưu tạm!');
                 return;
             }
 
-            toast.success('Khởi tạo bộ đề thành công');
-            
-            setTimeout(() => {
+            if(quizPreview){
+                toast.success('Khởi tạo bộ đề thành công');
                 router.push('/create-quiz');
-            }, 50);
+            }
 
         } catch (error) {
             console.error("Lỗi tổng thể hệ thống:", error);
             toast.error('Hệ thống gặp sự cố khi tạo bộ đề');
+        } finally {
+            setIsGenerating(false);
         }
     }
 
@@ -102,7 +101,7 @@ export default function QuizGenerate() {
                             onChange={(e) => setPrompt(e.target.value)} 
                             placeholder={'Nhập ý tưởng của bạn'} 
                             value={prompt} 
-                            isReadonly={false} 
+                            isReadonly={isGenerating} // Khóa luôn ô nhập liệu khi đang sinh đề
                         />
                         
                         <div className="flex flex-row justify-between text-white gap-6 font-bold text-lg">
@@ -110,7 +109,8 @@ export default function QuizGenerate() {
                                 <select 
                                     value={numQuestions}
                                     onChange={(e) => setNumQuestions(Number(e.target.value))}
-                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none"
+                                    disabled={isGenerating} // Khóa select khi đang loading
+                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50"
                                 >
                                     <option value={3} className="text-black">3 câu hỏi</option>
                                     <option value={5} className="text-black">5 câu hỏi</option>
@@ -123,7 +123,8 @@ export default function QuizGenerate() {
                                 <select 
                                     value={timeLimit}
                                     onChange={(e) => setTimeLimit(Number(e.target.value))}
-                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none"
+                                    disabled={isGenerating} // Khóa select khi đang loading
+                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50"
                                 >
                                     <option value={20} className="text-black">20 giây</option>
                                     <option value={25} className="text-black">25 giây</option>
@@ -135,8 +136,9 @@ export default function QuizGenerate() {
                             <div className="relative flex-1" ref={dropdownRef}>
                                 <button
                                     type="button"
-                                    onClick={() => setIsOpen(!isOpen)}
-                                    className="w-full h-10 bg-transparent text-white flex items-center justify-between cursor-pointer focus:outline-none"
+                                    onClick={() => !isGenerating && setIsOpen(!isOpen)}
+                                    disabled={isGenerating} // Khóa dropdown khi đang loading
+                                    className="w-full h-10 bg-transparent text-white flex items-center justify-between cursor-pointer focus:outline-none disabled:opacity-50"
                                 >
                                     <span className="truncate">
                                         {selectedTopics.length === 0 
@@ -176,9 +178,30 @@ export default function QuizGenerate() {
                             </div>
                         </div>
                     </div>
+                    
+                    {/* 🌟 4. Khu vực nút bấm Khởi tạo / Đang loading */}
                     <div className="flex justify-center items-center w-full py-12">
-                        <button onClick={() => handleGenerateQuiz()} className="bg-[#15A440] text-white font-bold text-2xl flex items-center justify-center w-sm h-14 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300">
-                            Khởi tạo 
+                        <button 
+                            onClick={() => handleGenerateQuiz()} 
+                            disabled={isGenerating} // Khóa nút bấm ngăn spam click liên tục
+                            className={`text-white font-bold text-2xl flex items-center justify-center w-sm h-14 rounded-2xl transition-all duration-300
+                                ${isGenerating 
+                                    ? 'bg-gray-500 cursor-not-allowed shadow-none' 
+                                    : 'bg-[#15A440] shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5]'
+                                }`}
+                        >
+                            {isGenerating ? (
+                                <div className="flex items-center gap-3">
+                                    {/* Hiệu ứng xoay tròn SVG Spinner */}
+                                    <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span className="text-xl">Đang khởi tạo...</span>
+                                </div>
+                            ) : (
+                                "Khởi tạo"
+                            )}
                         </button>
                     </div>
                 </div>

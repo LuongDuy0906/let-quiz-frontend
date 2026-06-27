@@ -30,6 +30,15 @@ export default function WaitingRoomPageWithRoomPin() {
         if (typeof window === 'undefined') return;
 
         try {
+            const savedPlayerId = sessionStorage.getItem('playerId');
+            const savedRoomPin = sessionStorage.getItem('roomPin');
+
+            // Nếu phát hiện có thông tin cũ của đúng phòng này, chủ động mở kết nối Socket
+            if (savedPlayerId && savedRoomPin === roomPin) {
+                setIsJoined(true); // Bật trạng thái đã join để ẩn form nhập Nickname
+                connectSocket();   
+            }
+
             const savedQuiz = sessionStorage.getItem(`room_quiz:${roomPin}`);
 
             if (roomPin && savedQuiz) {
@@ -60,11 +69,45 @@ export default function WaitingRoomPageWithRoomPin() {
     useEffect(() => {
         if (!socket) return;
 
+        // 1. Khi Socket thiết lập kết nối thành công với Server
+        socket.on("connect", () => {
+            const savedPlayerId = sessionStorage.getItem('currentPlayerId');
+            const savedRoomPin = sessionStorage.getItem('roomPin');
+
+            // Gửi yêu cầu reconnect kèm theo playerId cũ của mình lên hệ thống Backend
+            if (savedPlayerId && savedRoomPin === roomPin) {
+                socket.emit("reconnectToRoom", {
+                    roomPin: roomPin,
+                    playerId: savedPlayerId
+                });
+            }
+        });
+
+        // 🌟 2. LẮNG NGHE SỰ KIỆN RECONNECT THÀNH CÔNG TỪ BACKEND
+        socket.on("reconnectSuccess", (data: { message: string, playerId: string, roomStatus: string }) => {
+            toast.success(data.message);
+            setIsJoined(true);
+
+            // Cập nhật trạng thái giao diện Frontend khớp với trạng thái thực tế của phòng ở Backend
+            if (data.roomStatus === 'PLAYING') {
+                setRoomStatus('PLAYING');
+            } else if (data.roomStatus === 'FINISHED') {
+                setRoomStatus('FINISHED');
+            } else {
+                setRoomStatus('WAITING');
+            }
+        });
+
+        // 3. Sự kiện cập nhật danh sách người chơi trong phòng chơi
         socket.on("playerListUpdate", (data: any) => {
-            if (data && data.playerList) {
-                setPlayerList(data.playerList); 
-            } else if (Array.isArray(data)) {
-                setPlayerList(data);
+            // Đảm bảo bóc tách đúng mảng dữ liệu dù Backend trả về dạng Object hay mảng thô
+            const list = Array.isArray(data) ? data : (data.playerList || []);
+            setPlayerList(list); 
+
+            // Cập nhật hoặc lưu vết lại mã định danh để phòng hờ người dùng F5 bất ngờ
+            if (data.currentPlayerId) {
+                sessionStorage.setItem('currentPlayerId', data.currentPlayerId);
+                sessionStorage.setItem('roomPin', roomPin);
             }
         });
 
@@ -84,9 +127,15 @@ export default function WaitingRoomPageWithRoomPin() {
         socket.on("error", (err: { message: string }) => {
             toast.error(err.message);
             setIsJoined(false);
+            
+            // Nếu xảy ra lỗi (Phòng đã sập hoàn toàn hoặc ID hết hạn), dọn dẹp session để nhập lại từ đầu
+            sessionStorage.removeItem('playerId');
+            sessionStorage.removeItem('roomPin');
         });
 
         return () => {
+            socket.off("connect");
+            socket.off("reconnectSuccess"); // 🌟 Hủy lắng nghe sự kiện khi unmount component
             socket.off("playerListUpdate");
             socket.off("roomSettingsChanged");
             socket.off("gameStarted");
@@ -96,6 +145,7 @@ export default function WaitingRoomPageWithRoomPin() {
         };
     }, [socket, roomPin]);
 
+    // Hàm thực hiện gia nhập phòng thủ công bằng việc gõ tên truyền thống
     const handleConfirmJoin = (nickname: string, avatarSeed: string, userId: string | null) => {
         const socketInstance = connectSocket(); 
         socketInstance.emit("joinRoom", {

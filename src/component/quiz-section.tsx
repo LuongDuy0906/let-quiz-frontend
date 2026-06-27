@@ -3,10 +3,9 @@
 import { gameSessionService } from "@/features/game-session/game-session.service";
 import { faStar } from "@fortawesome/free-solid-svg-icons/faStar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { timeEnd } from "console";
 import { useRouter } from "next/navigation";
 
-export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }: Props) => {
+export const QuizSection = ({ _id, title, image, rating, name, totalQuestions, type }: Props) => {
     const router = useRouter();
 
     const handlePlayNow = async () => {
@@ -24,6 +23,11 @@ export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }:
             router.push(`/play/${data?.sessionId}`);
         }
     }
+
+    const handleShowQuizDetail = async (quizId: string) => {
+        router.push(`profile/quiz/${quizId}`);
+    }
+
     return (
         <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg">
             <div className="relative w-full h-40 overflow-hidden flex-none">
@@ -37,8 +41,10 @@ export const QuizSection = ({ _id, title, image, rating, name, totalQuestions }:
                 </div>
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-100">
-                <button onClick={handlePlayNow} className="border-4 border-black rounded-full w-40 h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5] transition-all duration-300">
-                    Chơi ngay
+                <button onClick={() => type === 'home' ? handlePlayNow() : handleShowQuizDetail(_id)} className="border-4 border-black rounded-full w-40 h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-[none] active:bg-[#A863DD] active:translate-y-[0.5] transition-all duration-300">
+                    {
+                        type === 'home' ? 'Chơi ngay' : 'Chi tiết'
+                    }
                 </button>
                 </div>
             </div>

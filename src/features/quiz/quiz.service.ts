@@ -65,7 +65,7 @@ export const quizService = {
         }
     },
 
-    findOne: async (id: string) => {
+    getQuestionByQuizId: async (id: string) => {
         try {
             const response = await apiFetch(`quiz/${id}`, {
                 method: 'GET'
@@ -99,5 +99,19 @@ export const quizService = {
             toast.error(e.message);
             return null;
         }
-    }
+    },
+
+    deleteQuiz: async (quizId: string) => {
+        try {
+            await apiFetch(`quiz/${quizId}`, {
+                method: 'DELETE',
+            });
+
+            toast.success("Xoá bộ đề thành công");
+        } catch (e: any) {
+            console.error('Save quiz failed:', e.message);
+            toast.error(e.message);
+            return null;
+        }
+    } 
 };

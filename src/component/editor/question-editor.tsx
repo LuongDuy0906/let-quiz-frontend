@@ -42,20 +42,20 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
     }
 
     const handleOptionChange = (targetOption: any, updates: any) => {
-        if (!question?.option) return;
+        if (!question?.options) return;
 
-        const updatedOptions = question.option.map((opt: any) => 
+        const updatedOptions = question.options.map((opt: any) => 
             opt === targetOption ? { ...opt, ...updates } : opt
         );
 
-        onUpdate({ option: updatedOptions });
+        onUpdate({ options: updatedOptions });
     };
 
     const handleToggleCorrect = (targetOption: any) => {
-        const newOptions = question.option.map((opt: any) =>
+        const newOptions = question.options.map((opt: any) =>
             opt === targetOption ? { ...opt, isCorrect: !opt.isCorrect } : opt
         );
-        onUpdate({ option: newOptions });
+        onUpdate({ options: newOptions });
     };
     
     useEffect(() => {
@@ -118,7 +118,7 @@ export const QuestionEditor = ({question, index, onUpdate, type}: Props) => {
                                 Đáp án đúng
                             </div>
                             <div>
-                                <input value={correctOpt?.content || ""} className="w-md h-11 border-5 border-[#18C574] bg-white rounded-b-md rounded-tr-md p-2" onChange={(e) => handleOptionChange(correctOpt, { content: e.target.value })}/>
+                                <input value={correctOpt?.content} className="w-md h-11 border-5 border-[#18C574] bg-white rounded-b-md rounded-tr-md p-2" onChange={(e) => handleOptionChange(correctOpt, { content: e.target.value })}/>
                             </div>
                         </div>
                         <div>

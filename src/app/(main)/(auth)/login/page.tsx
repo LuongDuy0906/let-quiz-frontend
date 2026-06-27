@@ -25,7 +25,10 @@ export default function Login() {
             }
         } else {
             const response = await authService.register(email, username, password);
-            router.push('/')
+            await refreshProfile();
+            if(response){
+                router.push('/')
+            }
         }
     }
 

@@ -37,6 +37,7 @@ export const QuizField = ({sections}: QuizFieldProps) => {
                             name={item.authorId?.profile?.username || "LetQuiz User"} 
                             createdAt={item.createdAt}
                             totalQuestions={item.totalQuestions}
+                            type={'home'}
                         />
                     </div>
                 ))}

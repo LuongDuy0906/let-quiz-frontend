@@ -7,6 +7,7 @@ import { useUser } from "@/providers/user.provider";
 import { CircleUserRound, Camera, Loader2, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function SettingPage() {
     const { user, setUser } = useUser();
@@ -96,7 +97,7 @@ export default function SettingPage() {
         setIsResettingPassword(true);
         try {
             await authService.forgotPassword(user.email);
-            alert("Yêu cầu thay đổi mật khẩu đã được gửi thành công! Hãy kiểm tra hòm thư của bạn.");
+            toast.success('Đã gửi email thành công');
         } catch (error) {
             alert("Có lỗi xảy ra khi gửi yêu cầu đổi mật khẩu.");
         } finally {

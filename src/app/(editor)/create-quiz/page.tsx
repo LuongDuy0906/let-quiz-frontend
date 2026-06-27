@@ -4,9 +4,10 @@ import { QuestionEditor } from "@/component/editor/question-editor";
 import { TypeSelector } from "@/component/editor/type-seletor";
 import { base64toFile, createDefaultQuestion, createDefaultQuiz, EditorStep } from "@/constants/constants";
 import { Eye, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SettingPage } from "@/component/editor/setting";
 import { quizService } from "@/features/quiz/quiz.service";
+import { useRouter } from "next/navigation";
 
 export default function CreateQuizPage() {
     const [quiz, setQuiz] = useState<any>(null);
@@ -14,9 +15,15 @@ export default function CreateQuizPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [onSetting, setOnSetting] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    const isLoadedRef = useRef(false);
+    const router = useRouter();
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
+
+        if (isLoadedRef.current) return;
 
         const rawData = sessionStorage.getItem('generated_quiz_preview');
         
@@ -28,21 +35,26 @@ export default function CreateQuizPage() {
                 if (sharedQuizData && (sharedQuizData._id || sharedQuizData.id)) {
                     setCurrentStep('setting');
                     setOnSetting(true);
-                } else if (sharedQuizData && sharedQuizData.question && sharedQuizData.question.length > 0) {
+                    setActiveIndex(-1);
+                } else if (sharedQuizData && sharedQuizData.questions && sharedQuizData.questions.length > 0) {
                     setActiveIndex(0);
-                    setCurrentStep(sharedQuizData.question[0].questionType || 'single');
+                    setCurrentStep(sharedQuizData.questions[0].questionType || 'single');
                     setOnSetting(false);
                 } else {
                     setCurrentStep('type-selector');
                     setOnSetting(false);
                 }
 
+                isLoadedRef.current = true;
+                sessionStorage.removeItem('generated_quiz_preview')
             } catch (error) {
-                console.error("Lỗi đọc dữ liệu:", error);
+                console.log("Lỗi đọc dữ liệu:", error);
                 setQuiz(createDefaultQuiz());
+                setCurrentStep('type-selector');
             }
         } else {
             setQuiz(createDefaultQuiz());
+            setCurrentStep('type-selector')
         }
         
         setIsInitialized(true);
@@ -54,7 +66,7 @@ export default function CreateQuizPage() {
 
     const handleUpdateQuestion = (index: number, updatedFields: any) => {
         setQuiz((prev: any) => {
-            const newQuestions = [...prev.question];
+            const newQuestions = [...prev.questions];
             newQuestions[index] = { ...newQuestions[index], ...updatedFields };
             return { ...prev, questions: newQuestions };
         });
@@ -77,7 +89,7 @@ export default function CreateQuizPage() {
     };
 
     const addNewQuestion = () => {
-        const newEmptyQ = createDefaultQuestion('single');
+        const newEmptyQ = createDefaultQuestion();
         setQuiz((prev: any) => ({
             ...prev,
             questions: [...prev.questions, newEmptyQ]
@@ -96,15 +108,16 @@ export default function CreateQuizPage() {
     };
 
     const renderComponent = () => {
-        // 🌟 SỬA TẠI ĐÂY: Thay quiz?.questions bằng quiz?.question (Bỏ chữ 's')
         const currentQuestion = quiz?.questions?.[activeIndex];
+        console.log(quiz);
         if (!currentQuestion && currentStep !== 'setting') return null;
 
-        const isPreExistingQuestion = !!(currentQuestion?.questionType || currentQuestion?.content);
+        const isPreExistingQuestion = !!(currentQuestion?.questionType);
         
         switch (currentStep) {
             case 'type-selector':
                 if (isPreExistingQuestion) {
+                    console.log(isPreExistingQuestion);
                     const activeType = currentQuestion.questionType === 'multiple' || currentQuestion.questionType === 'MULTIPLE_CHOICE' 
                         ? 'multiple' 
                         : 'single';
@@ -118,8 +131,9 @@ export default function CreateQuizPage() {
                         />
                     );
                 }
-            // Ngược lại, nếu là câu hỏi mới tinh thủ công chưa có gì, vẫn hiện bảng chọn loại như cũ
-            return <TypeSelector onSelect={selectTypeAndAdd}/>;
+                return (
+                    <TypeSelector onSelect={selectTypeAndAdd}/>
+                );
             case 'single':
             case 'multiple':
                 return (
@@ -138,6 +152,10 @@ export default function CreateQuizPage() {
     };
 
     const handleSaveQuiz = async () => {
+        if (isSaving) return;
+
+        setIsSaving(true);
+
         let finalQuizImage = quiz.image;
 
         if(quiz.image && quiz.image.startsWith('data:image')){
@@ -160,7 +178,13 @@ export default function CreateQuizPage() {
             image: finalQuizImage,
             questions: updatedQuestion
         }
-        await quizService.saveQuiz(finalQuizData);
+        const response = await quizService.saveQuiz(finalQuizData);
+
+        if(response){
+            router.push('/')
+        }
+        
+        setIsSaving(false);
     }
 
     if (!isInitialized) {
@@ -180,8 +204,27 @@ export default function CreateQuizPage() {
                     </a>
                 </div>
                 <div className="flex flex-1 items-center justify-start gap-6 h-10">
-                    <div onClick={handleSaveQuiz} className="bg-[#15A440] pb-2 text-white font-bold text-2xl flex items-center justify-center w-35 h-12 rounded-2xl shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] transition-all duration-300 cursor-pointer">
-                        Lưu
+                    {/* 🌟 Cập nhật lại nút bấm Lưu */}
+                    <div 
+                        onClick={() => !isSaving && handleSaveQuiz()} // Chỉ cho phép click khi không trong trạng thái lưu
+                        className={`pb-2 text-white font-bold text-2xl flex items-center justify-center w-40 h-12 rounded-2xl transition-all duration-300
+                            ${isSaving 
+                                ? 'bg-gray-500 opacity-70 cursor-not-allowed shadow-none pointer-events-none' 
+                                : 'bg-[#15A440] shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] cursor-pointer'
+                            }`}
+                    >
+                        {isSaving ? (
+                            <div className="flex items-center gap-2 mt-1">
+                                {/* Vòng xoay Loading nhỏ gọn phù hợp với kích thước nút Lưu */}
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span className="text-xl">Đang lưu...</span>
+                            </div>
+                        ) : (
+                            "Lưu"
+                        )}
                     </div>
                     <div className="flex flex-row bg-[#43569A] text-white justify-center items-center w-35 h-12 rounded-2xl gap-2 font-medium cursor-pointer" >
                         <div><Eye /></div>

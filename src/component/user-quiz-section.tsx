@@ -39,6 +39,7 @@ export const UserQuizSection = ({
                             rating={element.rating || 0} 
                             name={element.authorId?.profile?.username || "Tác giả"} 
                             createdAt={element.createdAt}
+                            type={'profile'}
                         />
                     </div>
                 ))}

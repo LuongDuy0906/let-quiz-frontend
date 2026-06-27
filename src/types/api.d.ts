@@ -1,3 +1,5 @@
+import { QuizTag } from "@/constants/constants";
+
 // Responses
 export interface AuthResponse {
     access_token: string;
@@ -31,10 +33,12 @@ export interface LibraryResponse {
 export interface QuizResponse {
     id: string;
     title: string;
-    question: any[];
+    questions: any[];
     image?: string;
-    tag: string;
+    tag: QuizTag[];
     status: string;
+    isAiGenerated: boolean;
+    totalQuestions: number;
 }
 
 export interface QuizzesResponse {
