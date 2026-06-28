@@ -85,5 +85,21 @@ export const gameSessionService = {
             toast.error(e.message);
             return null;
         }
-    }
+    },
+
+    getSummary: async (roomPin: string) => {
+        try {
+            const response = await apiFetch(`/player-record/${roomPin}`, {
+                method: 'GET'
+            });
+
+            const data = await handleApiResponse(response);
+
+            return data;
+        } catch (e: any) {
+            console.error('Thay đổi cài đặt thất bại', e.message);
+            toast.error(e.message);
+            return null;
+        }
+    } 
 };

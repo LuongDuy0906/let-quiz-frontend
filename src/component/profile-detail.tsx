@@ -27,8 +27,8 @@ export const ProfileDetail = ({ user, totalQuiz }: ProfileDetailProps) => {
                 <button className="border-4 border-black rounded-full w-full max-w-55 h-12 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-5px_3px_0px_rgba(0,0,0,0.25)] text-base font-black text-white bg-green-500 hover:bg-green-600 active:shadow-none active:translate-y-1 transition-all duration-300 cursor-pointer uppercase tracking-wider">
                     <a href="/create-quiz" className="block w-full h-full flex items-center justify-center">Tạo đề</a>
                 </button>
-                <button className="border-4 border-black rounded-full w-full max-w-55 h-12 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-5px_3px_0px_rgba(0,0,0,0.25)] text-base font-black text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-none active:translate-y-1 transition-all duration-300 cursor-pointer uppercase tracking-wider">
-                    <a href="/profile/setting" className="block w-full h-full items-center justify-center">Cài đặt</a>
+                <button className="flex items-center justify-center border-4 border-black rounded-full w-full max-w-55 h-12 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-5px_3px_0px_rgba(0,0,0,0.25)] text-base font-black text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-none active:translate-y-1 transition-all duration-300 cursor-pointer uppercase tracking-wider">
+                    <a href="/profile/setting" className="flex w-full h-full items-center justify-center">Cài đặt</a>
                 </button>
             </div>
         </div>

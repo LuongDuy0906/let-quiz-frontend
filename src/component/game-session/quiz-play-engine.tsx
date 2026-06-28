@@ -120,13 +120,9 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
 
         setHasSubmitted(true);
 
-        const scoreBase = timer * 50;
-        const calculatedScore = scoreBase > 1000 ? 1000 : scoreBase < 0 ? 0 : scoreBase;
-
         socket.emit("submitAnswer", {
             questionId: question?.questionId,
             answerId: answerIdStr,
-            score: calculatedScore
         });
     };
 
@@ -168,6 +164,53 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
             console.error('Lấy thông tin tổng kết thất bại', e.message);
             toast.error(e.message);
         }
+    };
+
+    const handleExportCSV = () => {
+        const questionsList = quizQuestions;
+        const headers = ["Thứ hạng", "Người chơi", ...questionsList.map((_, i) => `Câu ${i + 1}`), "Tổng điểm"];
+        
+        const rows = leaderboard.map((player, idx) => {
+            const playerAnswers = summaryData?.[player.playerId] || {};
+            
+            const questionCells = questionsList.map((q: any) => {
+                const ans = playerAnswers[q._id];
+                if (ans && ans.answerId) {
+                    const chosenLetters = ans.answerId.split(',')
+                        .map((id: string) => {
+                            const optIndex = q.options.findIndex((opt: any) => opt._id === id);
+                            return optIndex !== -1 ? String.fromCharCode(65 + optIndex) : '';
+                        })
+                        .filter(Boolean)
+                        .join(', ');
+                        
+                    return `${chosenLetters} (${ans.isCorrect ? 'Đúng' : 'Sai'})`;
+                }
+                return "-";
+            });
+            
+            return [
+                `${idx + 1}`,
+                player.name,
+                ...questionCells,
+                `${player.score}`
+            ];
+        });
+        
+        const csvContent = [
+            headers.map(val => `"${val.replace(/"/g, '""')}"`).join(";"),
+            ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(";"))
+        ].join("\n");
+        
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Bao_cao_room_${roomPin || 'session'}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
 
@@ -503,7 +546,15 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
                     </div>
                 )}
 
-                <div className="mt-8 flex gap-4">
+                <div className="mt-8 flex flex-wrap gap-4 justify-center">
+                    {isHost && (
+                        <button
+                            onClick={handleExportCSV}
+                            className="inline-block border-4 border-black bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-full text-lg font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-transform cursor-pointer"
+                        >
+                            Xuất báo cáo
+                        </button>
+                    )}
                     <button
                         onClick={() => setGameState('FINAL_LEADERBOARD')}
                         className="inline-block border-4 border-black bg-slate-300 hover:bg-slate-400 text-black px-6 py-3 rounded-full text-lg font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-transform cursor-pointer"
@@ -541,6 +592,12 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
         );
     }
 
+    const totalDuration = question?.duration || 30;
+    const timeElapsed = Math.max(0, Math.min(totalDuration - timer, totalDuration));
+    const timeRatio = timeElapsed / totalDuration;
+    const scoreMultiplier = 1 - (timeRatio * 0.5);
+    const displayScore = Math.round(1000 * scoreMultiplier);
+
     return (
         <div className="flex flex-col flex-1 w-full max-w-5xl mx-auto p-4 gap-6 select-none">
             <div className="flex flex-col md:grid md:grid-cols-3 w-full bg-[#2241AE] p-4 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white font-black text-base md:text-lg gap-3 md:gap-0 items-center">
@@ -552,7 +609,7 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
                 <div className="flex items-center gap-2 justify-center w-full md:w-auto">
                     <div className="flex items-center gap-2 bg-black/40 px-4 py-1 rounded-full border border-white/20 text-yellow-400">
                         <Clock className="w-5 h-5 animate-spin" />
-                        <span>Còn lại: {timer}s</span>
+                        <span>Điểm: {displayScore}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 justify-center md:justify-end w-full md:w-auto">
@@ -563,10 +620,20 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
                 </div>
             </div>
 
-            <div className="flex flex-col flex-1 bg-[#3B529A] rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 md:p-8 min-h-45 md:min-h-55 justify-center items-center text-center relative overflow-hidden">
+            <div className="flex flex-col flex-1 bg-[#3B529A] rounded-2xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 md:p-8 min-h-45 md:min-h-55 justify-center items-center text-center relative overflow-hidden gap-4">
                 <h3 className="text-xl md:text-3xl font-black text-white max-w-3xl leading-snug [text-shadow:2px_2px_0_#000]">
                     {question?.title}
                 </h3>
+
+                {question?.image && (
+                    <div className="w-full max-w-xs md:max-w-md max-h-45 md:max-h-60 rounded-xl border-4 border-black overflow-hidden bg-black/20 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mt-2">
+                        <img 
+                            src={question.image} 
+                            alt="Hình ảnh câu hỏi" 
+                            className="max-w-full max-h-45 md:max-h-60 object-contain" 
+                        />
+                    </div>
+                )}
 
                 {gameState === 'TIMEOUT' && !isAnswerRevealed && (
                     <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center z-10 animate-fade-in">

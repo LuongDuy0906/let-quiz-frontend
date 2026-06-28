@@ -45,13 +45,26 @@ export const QuizField = ({sections}: QuizFieldProps) => {
         );
     };
 
+    const TAG_MAP: Record<string, string> = {
+        "Entertainment": "Giải trí",
+        "Sport": "Thể thao",
+        "Art & Literature": "Hội họa và Văn học",
+        "Geography": "Địa lý",
+        "History": "Lịch sử",
+        "Science & Nature": "Khoa học tự nhiên",
+        "Trivia": "Đa dạng"
+    };
+
     return (
         <div className="flex flex-col px-4 md:px-10 max-w-6xl mx-auto w-full my-5 gap-6 select-none">
             {renderRow(sections.newest.title, sections.newest.data, sections.newest.total)}
             
             {renderRow(sections.topRated.title, sections.topRated.data, sections.topRated.total)}
 
-            {sections.tagSections.map((s, i) => renderRow(s.tag, s.data, s.total))}
+            {sections.tagSections.map((s, i) => {
+                const mappedTitle = TAG_MAP[s.tag] || s.tag;
+                return renderRow(mappedTitle, s.data, s.total);
+            })}
         </div>
     )
 } 
