@@ -43,7 +43,7 @@ export default function ProfilePage() {
     }, [currentPage]);
 
     return (
-        <div className="flex flex-row mr-50 ml-50 mt-7 gap-4">
+        <div className="flex flex-col lg:flex-row max-w-6xl mx-auto px-4 mt-7 gap-6 items-start w-full">
             <ProfileDetail user={user} totalQuiz={totalQuiz} />
             
             <UserQuizSection 

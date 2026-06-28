@@ -6,6 +6,7 @@ import { gameSessionService } from "@/features/game-session/game-session.service
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { LogOut } from "lucide-react";
 import { useSocket } from "@/providers/socket.provider";
 
 export default function WaitingRoomPageWithRoomPin() {
@@ -30,7 +31,7 @@ export default function WaitingRoomPageWithRoomPin() {
         if (typeof window === 'undefined') return;
 
         try {
-            const savedPlayerId = sessionStorage.getItem('playerId');
+            const savedPlayerId = sessionStorage.getItem('currentPlayerId');
             const savedRoomPin = sessionStorage.getItem('roomPin');
 
             // Nếu phát hiện có thông tin cũ của đúng phòng này, chủ động mở kết nối Socket
@@ -115,6 +116,19 @@ export default function WaitingRoomPageWithRoomPin() {
             setGameSettings(updatedSettings);
         });
 
+        socket.on("playerDisconnect", (data: { message: string }) => {
+            toast.warn(data.message);
+        });
+
+        socket.on("roomClosed", (data: { message: string }) => {
+            toast.warn(data.message || "Phòng chơi đã bị đóng bởi Giáo viên.");
+            sessionStorage.removeItem('currentPlayerId');
+            sessionStorage.removeItem('roomPin');
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2000);
+        });
+
         socket.on("gameStarted", (data: { shuffleAnswers: boolean }) => {
             sessionStorage.setItem(`shuffle_answers:${roomPin}`, String(data.shuffleAnswers));
             setRoomStatus('PLAYING');
@@ -129,7 +143,7 @@ export default function WaitingRoomPageWithRoomPin() {
             setIsJoined(false);
             
             // Nếu xảy ra lỗi (Phòng đã sập hoàn toàn hoặc ID hết hạn), dọn dẹp session để nhập lại từ đầu
-            sessionStorage.removeItem('playerId');
+            sessionStorage.removeItem('currentPlayerId');
             sessionStorage.removeItem('roomPin');
         });
 
@@ -138,6 +152,8 @@ export default function WaitingRoomPageWithRoomPin() {
             socket.off("reconnectSuccess"); // 🌟 Hủy lắng nghe sự kiện khi unmount component
             socket.off("playerListUpdate");
             socket.off("roomSettingsChanged");
+            socket.off("playerDisconnect");
+            socket.off("roomClosed");
             socket.off("gameStarted");
             socket.off("gameFinished");
             socket.off("error");
@@ -165,6 +181,17 @@ export default function WaitingRoomPageWithRoomPin() {
         return;
     };
 
+    const handleLeaveRoom = () => {
+        if (!socket) return;
+        const confirmLeave = window.confirm("Bạn có chắc chắn muốn rời khỏi phòng chơi không?");
+        if (confirmLeave) {
+            socket.emit("leaveRoom");
+            sessionStorage.removeItem('currentPlayerId');
+            sessionStorage.removeItem('roomPin');
+            window.location.href = "/";
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-[#452E80] text-white font-bold">
@@ -175,10 +202,20 @@ export default function WaitingRoomPageWithRoomPin() {
     
     return (
         <div className="flex flex-col h-screen gap-6">
-            <div className="flex flex-none w-full h-24 bg-[#4E62A8]/87 px-10 shadow-[0_0_10px_rgba(0,0,0,1)]">
-                <a href="/" className="flex items-center h-full w-sm">
-                    <img src="/image/let_quiz_logo.png" className="h-20 w-md" alt="Let Quiz Logo" />
+            <div className="flex flex-none w-full h-20 md:h-24 bg-[#4E62A8]/87 px-4 md:px-10 shadow-[0_0_10px_rgba(0,0,0,1)] items-center justify-between md:justify-start gap-4 md:gap-6">
+                <a href="/" className="flex items-center h-full w-auto max-w-37.5 md:max-w-none">
+                    <img src="/image/let_quiz_logo.png" className="h-14 md:h-20 w-auto object-contain" alt="Let Quiz Logo" />
                 </a>
+                
+                {isJoined && (
+                    <button
+                        onClick={handleLeaveRoom}
+                        className="border-2 border-black bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-black uppercase text-xs md:text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1.5 cursor-pointer flex-none"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        <span>Thoát phòng</span>
+                    </button>
+                )}
             </div>
             
             {roomStatus === 'WAITING' && (
@@ -190,6 +227,7 @@ export default function WaitingRoomPageWithRoomPin() {
                     onConfirmJoin={handleConfirmJoin}
                     onSettingsChange={handleSettingsChange}
                     onStartGame={handleStartGame}
+                    onLeaveRoom={handleLeaveRoom}
                 />
             )}
 

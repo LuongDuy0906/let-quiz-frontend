@@ -57,12 +57,12 @@ export const gameSessionService = {
         }
     },
 
-    updateGameSessionSetting: async (showLeaderBoard: boolean, shuffleQuestion: boolean, shuffleOption: boolean, roomPin: string) => {
+    updateGameSessionSetting: async (showLeaderboard: boolean, shuffleQuestions: boolean, shuffleOptions: boolean, roomPin: string) => {
         try {
             await apiFetch(`game-session/${roomPin}/settings`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({showLeaderBoard, shuffleQuestion, shuffleOption}) 
+                body: JSON.stringify({showLeaderboard, shuffleQuestions, shuffleOptions}) 
             });
 
         } catch (e: any) {

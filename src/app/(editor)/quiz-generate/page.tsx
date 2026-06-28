@@ -80,65 +80,65 @@ export default function QuizGenerate() {
     }
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
-            <div className="flex flex-none flex-row h-auto gap-5 pl-5 bg-[#4E62A8]/87 justify-start items-start p-1 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
-                <div className="w-50 h-20">
+        <div className="flex flex-col h-screen overflow-hidden select-none">
+            <div className="flex flex-none flex-row h-auto pl-4 bg-[#4E62A8]/87 justify-start items-center py-2 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
+                <div className="w-36 h-12">
                     <a href="/" className="h-full w-full flex justify-center">
-                        <img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" />
+                        <img src="image/let_quiz_logo.png" className="h-full w-auto object-contain" alt="Let Quiz Logo" />
                     </a>
                 </div>
             </div>
             
-            <div className="w-full h-full flex justify-center items-start py-10">
-                <div className="flex flex-col w-4xl h-full p-10 gap-20">
-                    <div className="flex flex-none flex-col w-full justify-center items-center gap-10 text-5xl font-bold text-white">
-                        <p>A.I</p>
-                        <p className="text-center text-4xl">Hãy nhập ý tưởng của bạn</p>
+            <div className="w-full h-full flex justify-center items-start py-6 md:py-10 overflow-y-auto">
+                <div className="flex flex-col w-full max-w-2xl px-4 md:px-10 py-4 gap-10 md:gap-14">
+                    <div className="flex flex-none flex-col w-full justify-center items-center gap-4 md:gap-6 text-4xl md:text-5xl font-black text-white uppercase tracking-wider">
+                        <p className="[text-shadow:2px_2px_0_#000]">A.I</p>
+                        <p className="text-center text-2xl md:text-3xl font-bold lowercase first-letter:uppercase tracking-normal text-slate-200">Hãy nhập ý tưởng của bạn</p>
                     </div>
                     
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-5">
                         <BaseInput 
                             onChange={(e) => setPrompt(e.target.value)} 
-                            placeholder={'Nhập ý tưởng của bạn'} 
+                            placeholder={'Ví dụ: 10 câu hỏi về lịch sử Việt Nam thế kỷ 20...'} 
                             value={prompt} 
-                            isReadonly={isGenerating} // Khóa luôn ô nhập liệu khi đang sinh đề
+                            isReadonly={isGenerating}
                         />
                         
-                        <div className="flex flex-row justify-between text-white gap-6 font-bold text-lg">
-                            <div className="relative flex-1">
+                        <div className="flex flex-col sm:flex-row justify-between text-white gap-4 sm:gap-6 font-black text-base md:text-lg">
+                            <div className="relative flex-1 bg-black/20 rounded-xl px-3 py-1 border-2 border-black flex items-center">
                                 <select 
                                     value={numQuestions}
                                     onChange={(e) => setNumQuestions(Number(e.target.value))}
-                                    disabled={isGenerating} // Khóa select khi đang loading
-                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50"
+                                    disabled={isGenerating}
+                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50 font-bold"
                                 >
-                                    <option value={3} className="text-black">3 câu hỏi</option>
-                                    <option value={5} className="text-black">5 câu hỏi</option>
-                                    <option value={7} className="text-black">7 câu hỏi</option>
+                                    <option value={3} className="text-black font-bold">3 câu hỏi</option>
+                                    <option value={5} className="text-black font-bold">5 câu hỏi</option>
+                                    <option value={7} className="text-black font-bold">7 câu hỏi</option>
                                 </select>
-                                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-white" />
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-white" />
                             </div>
 
-                            <div className="relative flex-1">
+                            <div className="relative flex-1 bg-black/20 rounded-xl px-3 py-1 border-2 border-black flex items-center">
                                 <select 
                                     value={timeLimit}
                                     onChange={(e) => setTimeLimit(Number(e.target.value))}
-                                    disabled={isGenerating} // Khóa select khi đang loading
-                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50"
+                                    disabled={isGenerating}
+                                    className="w-full h-10 bg-transparent text-white appearance-none cursor-pointer focus:outline-none disabled:opacity-50 font-bold"
                                 >
-                                    <option value={20} className="text-black">20 giây</option>
-                                    <option value={25} className="text-black">25 giây</option>
-                                    <option value={30} className="text-black">30 giây</option>
+                                    <option value={20} className="text-black font-bold">20 giây</option>
+                                    <option value={25} className="text-black font-bold">25 giây</option>
+                                    <option value={30} className="text-black font-bold">30 giây</option>
                                 </select>
-                                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-white" />
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-white" />
                             </div>
 
-                            <div className="relative flex-1" ref={dropdownRef}>
+                            <div className="relative flex-1 bg-black/20 rounded-xl px-3 py-1 border-2 border-black flex items-center" ref={dropdownRef}>
                                 <button
                                     type="button"
                                     onClick={() => !isGenerating && setIsOpen(!isOpen)}
-                                    disabled={isGenerating} // Khóa dropdown khi đang loading
-                                    className="w-full h-10 bg-transparent text-white flex items-center justify-between cursor-pointer focus:outline-none disabled:opacity-50"
+                                    disabled={isGenerating}
+                                    className="w-full h-10 bg-transparent text-white flex items-center justify-between cursor-pointer focus:outline-none disabled:opacity-50 font-bold text-left"
                                 >
                                     <span className="truncate">
                                         {selectedTopics.length === 0 
@@ -146,17 +146,17 @@ export default function QuizGenerate() {
                                             : `Đã chọn (${selectedTopics.length})`
                                         }
                                     </span>
-                                    <ChevronDown className={`w-5 h-5 text-white transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                                    <ChevronDown className={`w-4 h-4 text-white transition-transform ${isOpen ? "rotate-180" : ""}`} />
                                 </button>
 
                                 {isOpen && (
-                                    <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded shadow-xl z-50 max-h-60 overflow-y-auto py-1">
+                                    <div className="absolute left-0 right-0 bottom-full sm:bottom-auto sm:top-full mb-2 sm:mb-0 sm:mt-2 bg-white border-2 border-black rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto py-1">
                                         {topicOptions.map((topic) => {
                                             const isChecked = selectedTopics.includes(topic.value);
                                             return (
                                                 <label
                                                     key={topic.value}
-                                                    className="flex items-center px-4 py-2.5 hover:bg-gray-100 cursor-pointer select-none justify-between border-b border-gray-50 last:border-none"
+                                                    className="flex items-center px-4 py-2 hover:bg-slate-100 cursor-pointer select-none justify-between border-b border-gray-100 last:border-none"
                                                 >
                                                     <span className="text-sm text-slate-800 font-bold">{topic.label}</span>
                                                     <div className="relative flex items-center">
@@ -164,7 +164,7 @@ export default function QuizGenerate() {
                                                             type="checkbox"
                                                             checked={isChecked}
                                                             onChange={() => handleToggleTopic(topic.value)}
-                                                            className="peer appearance-none w-4 h-4 border border-gray-400 rounded bg-white checked:bg-blue-500 checked:border-blue-500 cursor-pointer transition-colors"
+                                                            className="peer appearance-none w-4 h-4 border-2 border-black rounded bg-white checked:bg-blue-500 checked:border-blue-500 cursor-pointer transition-colors"
                                                         />
                                                         {isChecked && (
                                                             <Check className="absolute inset-0 m-auto w-3 h-3 text-white pointer-events-none stroke-3" />
@@ -180,14 +180,14 @@ export default function QuizGenerate() {
                     </div>
                     
                     {/* 🌟 4. Khu vực nút bấm Khởi tạo / Đang loading */}
-                    <div className="flex justify-center items-center w-full py-12">
+                    <div className="flex justify-center items-center w-full py-6 md:py-10 pb-24">
                         <button 
                             onClick={() => handleGenerateQuiz()} 
-                            disabled={isGenerating} // Khóa nút bấm ngăn spam click liên tục
-                            className={`text-white font-bold text-2xl flex items-center justify-center w-sm h-14 rounded-2xl transition-all duration-300
+                            disabled={isGenerating}
+                            className={`text-white font-black text-xl flex items-center justify-center w-full max-w-xs h-14 rounded-2xl transition-all duration-300 border-4 border-black cursor-pointer shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-5px_3px_0px_rgba(0,0,0,0.25)] uppercase tracking-wider
                                 ${isGenerating 
                                     ? 'bg-gray-500 cursor-not-allowed shadow-none' 
-                                    : 'bg-[#15A440] shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5]'
+                                    : 'bg-[#15A440] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5]'
                                 }`}
                         >
                             {isGenerating ? (

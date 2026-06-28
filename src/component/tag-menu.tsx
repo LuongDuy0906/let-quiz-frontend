@@ -3,7 +3,7 @@ import { TagSection } from "./tag-section";
 
 export const TagMenu = () => {
     return (
-        <div className="flex gap-3 mr-50 ml-50 h-30">
+        <div className="flex justify-between px-4 md:px-10 max-w-6xl mx-auto w-full h-24 overflow-x-auto no-scrollbar py-2">
             {
                 TAG_DATA.map((tag, index) => (
                     <TagSection key={index} imageUrl={tag.imageUrl} title={tag.title}/>

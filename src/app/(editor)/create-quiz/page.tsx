@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { SettingPage } from "@/component/editor/setting";
 import { quizService } from "@/features/quiz/quiz.service";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function CreateQuizPage() {
     const [quiz, setQuiz] = useState<any>(null);
@@ -73,20 +74,35 @@ export default function CreateQuizPage() {
     };
     
     const handleDeleteQuestion = (indexToDelete: number) => {
-        if (quiz.question.length <= 1) {
+        if (!quiz?.questions || quiz.questions.length <= 1) {
             alert("Bộ đề phải có ít nhất một câu hỏi!");
             return;
         }
 
+        const newQuestions = quiz.questions.filter((_: any, i: number) => i !== indexToDelete);
+
         setQuiz((prev: any) => ({
             ...prev,
-            questions: prev.questions.filter((_: any, i: number) => i !== indexToDelete)
+            questions: newQuestions
         }));
 
+        let newActiveIndex = activeIndex;
         if (indexToDelete <= activeIndex && activeIndex > 0) {
-            setActiveIndex(activeIndex - 1);
+            newActiveIndex = activeIndex - 1;
+            setActiveIndex(newActiveIndex);
+        } else if (activeIndex >= newQuestions.length) {
+            newActiveIndex = newQuestions.length - 1;
+            setActiveIndex(newActiveIndex);
+        }
+
+        const targetQ = newQuestions[newActiveIndex];
+        if (targetQ) {
+            setCurrentStep(targetQ.questionType || 'type-selector');
+        } else {
+            setCurrentStep('type-selector');
         }
     };
+
 
     const addNewQuestion = () => {
         const newEmptyQ = createDefaultQuestion();
@@ -128,6 +144,7 @@ export default function CreateQuizPage() {
                             index={activeIndex} 
                             onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
                             type={activeType} 
+                            onDelete={(index) => handleDeleteQuestion(index)}
                         />
                     );
                 }
@@ -142,6 +159,7 @@ export default function CreateQuizPage() {
                         index={activeIndex} 
                         onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
                         type={currentStep} 
+                        onDelete={(index) => handleDeleteQuestion(index)}
                     />
                 );
             case 'setting':
@@ -156,35 +174,42 @@ export default function CreateQuizPage() {
 
         setIsSaving(true);
 
-        let finalQuizImage = quiz.image;
+        try {
+            let finalQuizImage = quiz.image;
 
-        if(quiz.image && quiz.image.startsWith('data:image')){
-            const file = await base64toFile(quiz.image, 'quiz-cover.png');
-            const res = await quizService.uploadQuizImage(file);
-            finalQuizImage = res;
-        };
-
-        const updatedQuestion = await Promise.all(quiz.questions.map(async (q: any, index: number) => {
-            if(q.image && q.image.startsWith('data:image')){
-                const file = await base64toFile(q.image, `image-${index}.png`);
+            if(quiz.image && quiz.image.startsWith('data:image')){
+                const file = await base64toFile(quiz.image, 'quiz-cover.png');
                 const res = await quizService.uploadQuizImage(file);
-                return {...q, image: res}
+                finalQuizImage = res;
+            };
+
+            const updatedQuestion = await Promise.all(quiz.questions.map(async (q: any, index: number) => {
+                if(q.image && q.image.startsWith('data:image')){
+                    const file = await base64toFile(q.image, `image-${index}.png`);
+                    const res = await quizService.uploadQuizImage(file);
+                    return {...q, image: res}
+                }
+                return q;
+            }))
+
+            const finalQuizData = {
+                ...quiz,
+                image: finalQuizImage,
+                questions: updatedQuestion
             }
-            return q;
-        }))
+            const response = await quizService.saveQuiz(finalQuizData);
 
-        const finalQuizData = {
-            ...quiz,
-            image: finalQuizImage,
-            questions: updatedQuestion
+            if(response){
+                setTimeout(() => {
+                    router.push('/');
+                }, 1500);
+            }
+        } catch (error: any) {
+            console.error("Lỗi khi lưu bộ đề:", error);
+            toast.error(error?.message || "Đã xảy ra lỗi khi lưu bộ đề");
+        } finally {
+            setIsSaving(false);
         }
-        const response = await quizService.saveQuiz(finalQuizData);
-
-        if(response){
-            router.push('/')
-        }
-        
-        setIsSaving(false);
     }
 
     if (!isInitialized) {
@@ -196,39 +221,38 @@ export default function CreateQuizPage() {
     }
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
-            <div className="flex flex-none flex-row h-auto gap-5 pl-5 bg-[#4E62A8]/87 justify-center items-center p-1 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
-                <div className="flex flex-none justify-center items-center w-50 h-20">
+        <div className="flex flex-col h-screen overflow-hidden select-none">
+            <div className="flex flex-none flex-col sm:flex-row w-full h-auto gap-4 px-4 bg-[#4E62A8]/87 justify-between items-center py-2 shadow-[0_0_10px_rgba(0,0,0,1)] relative z-50">
+                <div className="flex flex-none justify-center items-center w-36 h-12">
                     <a href="/" className="h-full w-full flex justify-center">
-                        <img src="image/let_quiz_logo.png" className="h-full w-full" alt="Let Quiz Logo" />
+                        <img src="image/let_quiz_logo.png" className="h-full w-auto object-contain" alt="Let Quiz Logo" />
                     </a>
                 </div>
-                <div className="flex flex-1 items-center justify-start gap-6 h-10">
+                <div className="flex items-center justify-center sm:justify-end gap-3 h-auto py-1 w-full sm:w-auto">
                     {/* 🌟 Cập nhật lại nút bấm Lưu */}
                     <div 
-                        onClick={() => !isSaving && handleSaveQuiz()} // Chỉ cho phép click khi không trong trạng thái lưu
-                        className={`pb-2 text-white font-bold text-2xl flex items-center justify-center w-40 h-12 rounded-2xl transition-all duration-300
+                        onClick={() => !isSaving && handleSaveQuiz()}
+                        className={`pb-1 text-white font-black text-lg flex items-center justify-center w-28 h-10 rounded-xl transition-all duration-300
                             ${isSaving 
                                 ? 'bg-gray-500 opacity-70 cursor-not-allowed shadow-none pointer-events-none' 
-                                : 'bg-[#15A440] shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] cursor-pointer'
+                                : 'bg-[#15A440] shadow-[inset_0px_-3px_3px_0px_rgba(0,0,0,0.5)] hover:bg-[#50CA75] active:shadow-[none] active:bg-[#62DA86] active:translate-y-[0.5] cursor-pointer'
                             }`}
                     >
                         {isSaving ? (
-                            <div className="flex items-center gap-2 mt-1">
-                                {/* Vòng xoay Loading nhỏ gọn phù hợp với kích thước nút Lưu */}
-                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <span className="text-xl">Đang lưu...</span>
+                                <span className="text-sm">Lưu...</span>
                             </div>
                         ) : (
                             "Lưu"
                         )}
                     </div>
-                    <div className="flex flex-row bg-[#43569A] text-white justify-center items-center w-35 h-12 rounded-2xl gap-2 font-medium cursor-pointer" >
-                        <div><Eye /></div>
-                        <div>Xem trước</div>
+                    <div className="flex flex-row bg-[#43569A] text-white justify-center items-center w-28 h-10 rounded-xl gap-2 text-sm font-bold cursor-pointer" >
+                        <Eye className="w-4 h-4" />
+                        <span>Xem trước</span>
                     </div>
                 </div>
             </div>
@@ -237,14 +261,14 @@ export default function CreateQuizPage() {
                 {renderComponent()}
             </div>
             
-            <div className="flex flex-none flex-row w-full h-25 bg-[#6F82C7] shadow-[0_0_20px_rgba(0,0,0,1)] pt-1 pb-1 pl-5 pr-5">
+            <div className="flex flex-none flex-row w-full h-24 bg-[#6F82C7] shadow-[0_0_20px_rgba(0,0,0,1)] py-2 px-4">
                 <div className="flex flex-1 flex-row items-center justify-start gap-4 overflow-x-auto scrollbar-hide">
                     <button onClick={() => {
                             setOnSetting(true);
                             setActiveIndex(-1);
                             setCurrentStep('setting');
                         }} 
-                        className={`h-20 w-30 ${onSetting ? 'bg-[#23CBFA] border-2 border-white' : 'bg-[#4E62A8]/87'} text-xl text-white font-bold rounded-xl cursor-pointer flex-none`}>
+                        className={`h-16 w-24 ${onSetting ? 'bg-[#23CBFA] border-2 border-white' : 'bg-[#4E62A8]/87'} text-sm text-white font-bold rounded-xl cursor-pointer flex-none`}>
                         Cài đặt
                     </button>
 
@@ -258,30 +282,30 @@ export default function CreateQuizPage() {
                                     setCurrentStep(quiz.questions[index].questionType || 'type-selector');
                                     setOnSetting(false);
                                 }}
-                                className={`h-20 w-30 text-sm text-white font-bold rounded-xl cursor-pointer flex flex-row p-1 flex-none transition-all
+                                className={`h-16 w-24 text-xs text-white font-bold rounded-xl cursor-pointer flex flex-row p-1 flex-none transition-all items-center
                                     ${activeIndex === index ? 'bg-[#23CBFA] scale-105 border-2 border-white' : 'bg-[#4E62A8]/87'}
                                 `}
                             >
-                                <div className="flex-none flex items-start w-8">   
+                                <div className="flex-none flex items-center justify-center w-6">   
                                     <p>{index + 1}</p>
                                 </div>
                                 <div className="flex-1 flex justify-center items-center">
-                                    <div className="h-10 w-13 bg-[#3B56B4] border-black border rounded-sm"></div>                                     
+                                    <div className="h-8 w-10 bg-[#3B56B4] border-black border rounded-sm"></div>                                     
                                 </div>
                             </div>
                         ))
                     }
                 </div>
 
-                <div className="h-full w-55 flex justify-between items-center flex-row flex-none ml-4">
-                    <div className="text-white font-bold text-lg">
+                <div className="h-full w-32 sm:w-48 flex justify-between items-center flex-row flex-none ml-2 sm:ml-4 gap-2">
+                    <div className="text-white font-bold text-xs sm:text-sm hidden xs:block">
                         <p>Thêm câu hỏi <span>={">"}</span></p>
                     </div>
                     <button 
                         onClick={addNewQuestion} 
-                        className="flex justify-center items-center h-13 w-13 bg-[#23CBFA] shadow-[inset_0px_-5px_4px_0px_rgba(0,0,0,0.5)] rounded-xl hover:h-14 hover:w-14 transition-all cursor-pointer"
+                        className="flex justify-center items-center h-10 w-10 sm:h-12 sm:w-12 bg-[#23CBFA] shadow-[inset_0px_-3px_3px_0px_rgba(0,0,0,0.5)] rounded-xl hover:scale-105 transition-all cursor-pointer flex-none"
                     >
-                        <Plus className="h-7 w-7 text-white mb-1"/>
+                        <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-white"/>
                     </button>
                 </div>
             </div>

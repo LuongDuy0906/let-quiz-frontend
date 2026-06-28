@@ -14,21 +14,20 @@ export const QuizField = ({sections}: QuizFieldProps) => {
         if (!data || data.length === 0) return null;
 
         return (
-        <div key={title} className="flex flex-row bg-[#D2DCFF] gap-4 rounded-3xl">
+        <div key={title} className="flex flex-col lg:flex-row bg-[#D2DCFF] gap-2 lg:gap-4 rounded-3xl overflow-hidden border-2 border-black/10">
             
-            <div className="flex-none flex items-start justify-center flex-col p-12 lg:p-20 gap-3 min-w-75">
-            <h1 className="text-black font-bold text-3xl">{title}</h1>
-            <h3 className="text-black font-bold text-xl cursor-pointer hover:underline">
-                Khám phá ngay <span className="text-blue-500">({total})</span>
-                <span className="inline-block ml-2">
-                    <FontAwesomeIcon icon={faChevronRight} className="text-black" />
-                </span>
-            </h3>
+            <div className="flex-none flex items-center lg:items-start justify-center flex-col p-6 lg:p-10 gap-2 w-full lg:w-72 bg-black/5 lg:bg-transparent">
+                <h1 className="text-black font-black text-xl lg:text-3xl text-center lg:text-left">{title}</h1>
+                <h3 className="text-slate-800 font-bold text-sm lg:text-base cursor-pointer hover:underline flex items-center gap-1.5">
+                    <span>Khám phá ngay</span>
+                    <span className="text-blue-600">({total})</span>
+                    <FontAwesomeIcon icon={faChevronRight} className="text-black text-xs ml-1" />
+                </h3>
             </div>
 
-            <div className="flex-1 flex flex-row gap-6 p-8 overflow-x-auto no-scrollbar items-stretch"> 
+            <div className="flex-1 flex flex-row gap-4 p-4 lg:p-6 overflow-x-auto no-scrollbar items-stretch w-full"> 
                 {data.map((item) => (
-                    <div key={item._id} className="w-70 flex-none"> 
+                    <div key={item._id} className="w-60 md:w-70 flex-none"> 
                         <QuizSection 
                             _id={item._id}           
                             title={item.title} 
@@ -47,7 +46,7 @@ export const QuizField = ({sections}: QuizFieldProps) => {
     };
 
     return (
-        <div className="flex flex-col mx-50 my-5 gap-6">
+        <div className="flex flex-col px-4 md:px-10 max-w-6xl mx-auto w-full my-5 gap-6 select-none">
             {renderRow(sections.newest.title, sections.newest.data, sections.newest.total)}
             
             {renderRow(sections.topRated.title, sections.topRated.data, sections.topRated.total)}

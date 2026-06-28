@@ -49,19 +49,22 @@ export const Header = () => {
     }
 
     return (
-        <header className={`grid ${user ? 'grid-cols-[300px_1fr_200px]' : 'grid-cols-[300px_1fr_300px]' } h-40 ml-50 mr-50 border-b-[#B3DFDD] border-b-2`}> 
-            <div className="flex items-center justify-center">
-                <a href="/"><img src="/image/let_quiz_logo.png" alt="Logo" className="h-35" /></a>
+        <header className="flex flex-col lg:flex-row items-center justify-between gap-4 py-4 px-4 md:px-10 max-w-6xl mx-auto border-b-[#B3DFDD] border-b-2 bg-transparent select-none"> 
+            <div className="flex items-center justify-center flex-none">
+                <a href="/">
+                    <img src="/image/let_quiz_logo.png" alt="Logo" className="h-16 md:h-20 w-auto object-contain" />
+                </a>
             </div>
-            <div className="grid grid-cols-2 bg-[#7CD7F0] m-6 rounded-2xl">
-                <div className= "font-bold text-3xl text-center flex items-center justify-end">
-                    Chơi chứ ? Nhập mã PIN
+            
+            <div className="flex flex-col sm:flex-row bg-[#7CD7F0] px-6 py-3 sm:py-2 rounded-2xl items-center gap-4 flex-1 max-w-xl w-full border-2 border-black/10">
+                <div className="font-black text-lg md:text-xl text-center sm:text-right text-slate-800 uppercase tracking-wide flex-1">
+                    Chơi chứ? Nhập mã PIN
                 </div>
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center flex-none">
                     <input
                         type="text"
                         placeholder="123 456"
-                        className="p-2 w-fit h-15 bg-white text-center text-xl border-4 border-black-300 rounded-full shadow-[inset_0px_8px_4px_0px_rgba(0,0,0,0.25)] focus:outline-none"
+                        className="p-2 w-32 h-10 bg-white text-center text-lg font-black border-4 border-black rounded-full shadow-[inset_0px_4px_4px_0px_rgba(0,0,0,0.25)] focus:outline-none"
                         onChange={handlePinChange}
                         onKeyDown={handleKeyDown}
                         value={pinInput}
@@ -70,24 +73,23 @@ export const Header = () => {
                     />
                 </div>
             </div>
-            <div className="p-4 grid grid-cols-[80px_1fr] gap-5">
-                <div className="flex items-center justify-center">
-                    <div className="bg-white p-3 rounded-full flex items-center justify-center">
-                        <Search className="w-full h-full"></Search>
-                    </div>
+            
+            <div className="flex items-center justify-center gap-4 flex-none">
+                <div className="bg-white p-2.5 rounded-full border-2 border-black flex items-center justify-center hover:bg-slate-100 transition-colors cursor-pointer shadow-sm">
+                    <Search className="w-5 h-5 text-black" />
                 </div>
                 <div className="flex items-center justify-center">
                     {
                         !user ? (
-                            <button className="border-4 border-black rounded-full w-full h-14 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-xl font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-none active:translate-y-1 transition-all duration-300">
-                                    <a href="/login">Đăng nhập</a>
+                            <button className="border-4 border-black rounded-full px-6 h-12 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),inset_0px_-8px_4px_0px_rgba(0,0,0,0.25)] text-base font-bold text-white bg-[#801FCA] hover:bg-[#A863DD] active:shadow-none active:translate-y-1 transition-all duration-300 cursor-pointer">
+                                <a href="/login">Đăng nhập</a>
                             </button>
                         ) : (
-                            <a href="/profile">
+                            <a href="/profile" className="hover:scale-105 transition-transform">
                                 {!user.profile.avatarUrl ? (
-                                    <CircleUserRound  className="w-16 h-16"/>
+                                    <CircleUserRound className="w-12 h-12 text-slate-700"/>
                                 ) : (
-                                    <img src={user.profile.avatarUrl} alt="User Avatar" className="w-16 h-16 rounded-full" />
+                                    <img src={user.profile.avatarUrl} alt="User Avatar" className="w-12 h-12 rounded-full border-2 border-black" />
                                 )}
                             </a>
                         )
