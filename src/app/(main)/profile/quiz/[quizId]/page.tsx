@@ -19,7 +19,7 @@ export default function ProfileQuizPage() {
     const username = user.user.profile.username;
     const avatar = user.user.profile.avatarUrl;
 
-    const [quiz, setQuiz] = useState<QuizResponse>();
+    const [quiz, setQuiz] = useState<any>();
     const [showQuestions, setShowQuestions] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
 
@@ -183,7 +183,7 @@ export default function ProfileQuizPage() {
                     }
                 </div>
                 <div className="grid grid-cols-5 gap-4 mt-6 w-full">
-                    {quiz?.questions?.map((item) => (
+                    {quiz?.questions?.map((item: any) => (
                         <div key={item._id} className="w-full"> 
                             <QuestionSection 
                                 _id={item._id} 

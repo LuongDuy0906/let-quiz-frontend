@@ -21,10 +21,9 @@ interface LobbyProps {
         shuffleQuestions: boolean;
         shuffleOptions: boolean;
     };
-    onConfirmJoin: (nickname: string, avatarSeed: string, userId: string | null) => void;
+    onConfirmJoin: (nickname: string, avatarSeed: string) => void;
     onSettingsChange: (key: 'showLeaderboard' | 'shuffleQuestions' | 'shuffleOptions') => void;
     onStartGame: () => Promise<void>;
-    onLeaveRoom?: () => void;
 }
 
 export const Lobby = ({ 
@@ -36,7 +35,6 @@ export const Lobby = ({
     onConfirmJoin, 
     onSettingsChange, 
     onStartGame,
-    onLeaveRoom
 }: LobbyProps) => {
     
     const [joinRoomUrl, setJoinRoomUrl] = useState('');

@@ -65,13 +65,34 @@ export const quizService = {
         }
     },
 
+    updateQuiz: async (quizId: string, quizData: any) => {
+        try {
+            const response = await apiFetch(`/quiz/${quizId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(quizData)
+            });
+
+            const data = await handleApiResponse(response);
+            toast.success("Cập nhật bộ đề thành công");
+            
+            return data;
+        } catch (error: any) {
+            console.error('Save quiz failed:', error.message);
+            toast.error(error.message);
+            return null;
+        }
+    },
+
     getQuestionByQuizId: async (id: string) => {
         try {
             const response = await apiFetch(`quiz/${id}`, {
                 method: 'GET'
             });
 
-            const data = await handleApiResponse<QuizResponse>(response);
+            const data = await handleApiResponse(response);
 
             return data;
         } catch (error: any) {

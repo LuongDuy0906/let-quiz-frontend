@@ -15,24 +15,25 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     const connectSocket = () => {
-        // Kiểm tra xem đã có kết nối hoạt động chưa, nếu có rồi thì dùng lại luôn
         if (socket && socket.connected) {
             return socket;
         }
 
-        console.log("🔌 Đang tiến hành thiết lập kết nối Socket mới...");
-        // Thay URL này bằng đúng cổng chạy server NestJS của bạn
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+        console.log("Đang tiến hành thiết lập kết nối Socket mới...");
         const socketInstance = io('http://localhost:4000', {
             transports: ['websocket'],
-            autoConnect: false 
+            autoConnect: false,
+            auth: {
+                token: token
+            }
         });
 
         socketInstance.connect();
         
-        // Lưu vào state để các component khác lắng nghe sự thay đổi
         setSocket(socketInstance); 
         
-        // TRẢ VỀ TRỰC TIẾP thực thể vừa tạo để dùng ngay lập tức, tránh bị chậm state
         return socketInstance;
     };
 

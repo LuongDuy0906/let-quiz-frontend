@@ -99,7 +99,7 @@ export default function QuizGenerate() {
                     <div className="flex flex-col gap-5">
                         <BaseInput 
                             onChange={(e) => setPrompt(e.target.value)} 
-                            placeholder={'Ví dụ: 10 câu hỏi về lịch sử Việt Nam thế kỷ 20...'} 
+                            placeholder={'Ví dụ: Câu hỏi về lịch sử Việt Nam thế kỷ 20'} 
                             value={prompt} 
                             isReadonly={isGenerating}
                         />

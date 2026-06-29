@@ -61,6 +61,14 @@ export default function WaitingRoomPageWithSessionId() {
             toast.warn(data.message);
         });
 
+        socket.on("playerLeaved", (data: { message: string }) => {
+            toast.warn(data.message);
+        });
+
+        socket.on("playerReconnected", (data: { message: string }) => {
+            toast.success(data.message);
+        });
+
         socket.on("gameFinished", () => {
             setRoomStatus('FINISHED');
         });
@@ -74,19 +82,20 @@ export default function WaitingRoomPageWithSessionId() {
             socket.off("playerListUpdate");
             socket.off("gameStarted");
             socket.off("playerDisconnect");
+            socket.off("playerReconnected");
+            socket.off("playerleaved");
             socket.off("gameFinished");
             socket.off("error");
             socket.disconnect();
         };
     }, [socket]);
 
-    const handleConfirmJoin = (nickname: string, avatarSeed: string, userId: string | null) => {
+    const handleConfirmJoin = (nickname: string, avatarSeed: string) => {
         const socketInstance = connectSocket(); 
         socketInstance.emit("joinRoom", {
             roomPin: roomPin,
             name: nickname,
             avatar: avatarSeed,
-            userId: userId
         });
         setIsJoined(true);
     };
@@ -168,7 +177,6 @@ export default function WaitingRoomPageWithSessionId() {
                     onConfirmJoin={handleConfirmJoin}
                     onSettingsChange={handleSettingsChange}
                     onStartGame={handleStartGame}
-                    onLeaveRoom={handleLeaveRoom}
                 />
             )}
 

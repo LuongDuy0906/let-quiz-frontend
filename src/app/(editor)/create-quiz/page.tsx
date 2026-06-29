@@ -33,14 +33,10 @@ export default function CreateQuizPage() {
                 const sharedQuizData = JSON.parse(rawData);
                 setQuiz(sharedQuizData);
 
-                if (sharedQuizData && (sharedQuizData._id || sharedQuizData.id)) {
+                if (sharedQuizData && sharedQuizData.questions && sharedQuizData.questions.length > 0) {
+                    setActiveIndex(-1);
                     setCurrentStep('setting');
                     setOnSetting(true);
-                    setActiveIndex(-1);
-                } else if (sharedQuizData && sharedQuizData.questions && sharedQuizData.questions.length > 0) {
-                    setActiveIndex(0);
-                    setCurrentStep(sharedQuizData.questions[0].questionType || 'single');
-                    setOnSetting(false);
                 } else {
                     setCurrentStep('type-selector');
                     setOnSetting(false);
@@ -197,8 +193,16 @@ export default function CreateQuizPage() {
                 image: finalQuizImage,
                 questions: updatedQuestion
             }
-            const response = await quizService.saveQuiz(finalQuizData);
 
+            let response;
+            if(quiz._id || quiz.id) {
+                console.log(quiz.id)
+                const { _id, ...updatedQuiz } = quiz;
+                response = await quizService.updateQuiz(_id, updatedQuiz);
+            } else {
+                response = await quizService.saveQuiz(finalQuizData);
+            }
+            
             if(response){
                 setTimeout(() => {
                     router.push('/');
