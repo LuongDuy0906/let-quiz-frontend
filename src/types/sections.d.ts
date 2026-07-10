@@ -19,6 +19,7 @@ interface Props {
   createdAt: string;
   totalQuestions?: number;
   type: string;
+  isAiGenerated?: boolean;
 }
 
 interface UserContextType {
@@ -70,6 +71,7 @@ interface QuestionProps{
   information: string;
   showQuestions: boolean;
   showOptions: boolean;
+  isAiGenerated?: boolean;
 }
 
 interface OptionProps{

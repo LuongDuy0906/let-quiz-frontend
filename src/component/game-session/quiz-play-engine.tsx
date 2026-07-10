@@ -29,6 +29,7 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
     const [correctOptionIds, setCorrectOptionIds] = useState<string[]>([]);
     const [isAnswerRevealed, setIsAnswerRevealed] = useState<boolean>(false);
     const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
+    const [isQuizAiGenerated, setIsQuizAiGenerated] = useState<boolean>(false);
 
     useEffect(() => {
         if (!socket) return;
@@ -153,6 +154,7 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
             const quizDataResult = await handleApiResponse(quizRes);
             const fullQuestions = quizDataResult?.quizInfo?.questions || [];
             setQuizQuestions(fullQuestions);
+            setIsQuizAiGenerated(!!quizDataResult?.quizInfo?.isAiGenerated);
 
             if (quizDataResult?.quizInfo) {
                 const storageKey = sessionId ? `room_quiz:${sessionId}` : `room_quiz:${roomPin}`;
@@ -198,8 +200,8 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
         });
         
         const csvContent = [
-            headers.map(val => `"${val.replace(/"/g, '""')}"`).join(";"),
-            ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(";"))
+            headers.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(","),
+            ...rows.map(row => row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(","))
         ].join("\n");
         
         const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
@@ -491,7 +493,14 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
                                     <div key={q._id || i} className={`p-4 rounded-xl border-2 flex flex-col gap-3 ${statusClass}`}>
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 border-b border-white/10 pb-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-sm text-gray-300 font-bold">Câu hỏi {i + 1}</span>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-sm text-gray-300 font-bold">Câu hỏi {i + 1}</span>
+                                                    {(q.isAiGenerated || isQuizAiGenerated) && (
+                                                        <span className="bg-purple-600/30 text-purple-200 border border-purple-500/30 text-[10px] px-2 py-0.5 rounded font-black uppercase">
+                                                            AI khởi tạo
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span className="text-base font-black leading-snug">{q.content}</span>
                                             </div>
                                             <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start flex-none text-left md:text-right w-full md:w-auto border-t border-white/5 md:border-none pt-2 md:pt-0">
@@ -601,10 +610,15 @@ export const QuizPlayEngine = ({ roomPin, sessionId }: QuizPlayEngineProps) => {
     return (
         <div className="flex flex-col flex-1 w-full max-w-5xl mx-auto p-4 gap-6 select-none">
             <div className="flex flex-col md:grid md:grid-cols-3 w-full bg-[#2241AE] p-4 rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white font-black text-base md:text-lg gap-3 md:gap-0 items-center">
-                <div className="flex items-center gap-2 justify-center md:justify-start w-full md:w-auto">
+                <div className="flex items-center gap-2 justify-center md:justify-start w-full md:w-auto flex-wrap">
                     <span className="bg-purple-700 px-4 py-1 border-2 border-black rounded-lg w-full text-center md:w-auto">
                         Câu hỏi: {question?.currentQuestionIndex} / {question?.totalQuestions}
                     </span>
+                    {question?.isAiGenerated && (
+                        <span className="bg-fuchsia-700 px-4 py-1 border-2 border-black rounded-lg text-center font-bold text-white text-xs uppercase tracking-wide">
+                            AI khởi tạo
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-2 justify-center w-full md:w-auto">
                     <div className="flex items-center gap-2 bg-black/40 px-4 py-1 rounded-full border border-white/20 text-yellow-400">

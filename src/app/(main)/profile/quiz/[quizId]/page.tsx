@@ -12,12 +12,12 @@ import { toast } from "react-toastify";
 
 export default function ProfileQuizPage() {
     const params = useParams();
-    const user = useUser();
+    const { user, loading } = useUser();
     const router = useRouter();
     
     const quizId = params.quizId!.toString();
-    const username = user.user.profile.username;
-    const avatar = user.user.profile.avatarUrl;
+    const username = user?.profile?.username || "Username";
+    const avatar = user?.profile?.avatarUrl || "";
 
     const [quiz, setQuiz] = useState<any>();
     const [showQuestions, setShowQuestions] = useState(false);
@@ -26,7 +26,7 @@ export default function ProfileQuizPage() {
     const getQuiz = async (quizId: string) => {
         const response = await quizService.getQuestionByQuizId(quizId);
 
-        if(!response) {
+        if (!response) {
             toast.error('Lỗi khi tải câu hỏi');
             return;
         }
@@ -37,14 +37,14 @@ export default function ProfileQuizPage() {
     const handlePlayNow = async () => {
         const data = await gameSessionService.initGameSession(quizId);
 
-        if(data!.sessionId){
+        if (data!.sessionId) {
             const quizData = {
                 _id: quizId,
                 title: quiz?.title,
                 totalQuestions: quiz?.totalQuestions || 0,
                 image: quiz?.image
             }
-    
+
             sessionStorage.setItem(`room_quiz:${data?.sessionId}`, JSON.stringify(quizData));
             router.push(`/play/${data?.sessionId}`);
         }
@@ -77,13 +77,13 @@ export default function ProfileQuizPage() {
                     Hành động này không thể hoàn tác. Bộ đề của bạn sẽ bị xóa vĩnh viễn khỏi hệ thống.
                 </p>
                 <div className="flex flex-row justify-center gap-4 mt-2">
-                    <button 
+                    <button
                         onClick={closeToast}
                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm font-bold px-5 py-2.5 rounded-xl transition-all"
                     >
                         Hủy
                     </button>
-                    <button 
+                    <button
                         onClick={async () => {
                             closeToast();
                             try {
@@ -103,23 +103,23 @@ export default function ProfileQuizPage() {
             </div>
         );
 
-        toast.info(<Msg closeToast={() => {}} />, {
-            position: "top-center",    
-            autoClose: false,          
-            closeOnClick: false,       
-            draggable: false,          
-            closeButton: false,        
+        toast.info(<Msg closeToast={() => { }} />, {
+            position: "top-center",
+            autoClose: false,
+            closeOnClick: false,
+            draggable: false,
+            closeButton: false,
             style: {
                 position: "fixed",
                 zIndex: 9999,          // Đảm bảo nổi lên trên cùng mọi thành phần
-                width: "450px",        
+                width: "450px",
                 top: "40vh",           // Đẩy xuống tầm mắt khoảng 25% chiều cao màn hình
                 left: "50%",           // Căn giữa trục ngang
                 transform: "translateX(-50%)", // Dịch ngược lại 50% độ rộng để chính giữa tuyệt đối
-                borderRadius: "16px",  
-                
+                borderRadius: "16px",
+
                 boxShadow: "0 0 0 200vw rgba(0, 0, 0, 0.5), 0 20px 25px -5px rgb(0 0 0 / 0.1)",
-                
+
                 background: "#FFFFFF"
             }
         });
@@ -133,15 +133,15 @@ export default function ProfileQuizPage() {
         <div className="flex flex-col h-full p-10 mx-40 gap-10">
             <div className="flex flex-row bg-[#DFDDDD] rounded-xl w-full h-80 p-5 gap-10">
                 <div className="h-full w-sm">
-                    <img src={quiz?.image} alt="" className="rounded-xl h-full"/>
+                    <img src={quiz?.image || null} alt="" className="rounded-xl h-full" />
                 </div>
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-3">
                         {
-                            avatar ? 
-                            <img src={avatar} alt="" className="w-8 h-8 rounded-full"/> 
-                            :
-                            <CircleUserRound  className="w-8 h-8"/>
+                            avatar ?
+                                <img src={avatar} alt="" className="w-8 h-8 rounded-full" />
+                                :
+                                <CircleUserRound className="w-8 h-8" />
                         }
                         <p className="text-xl">{username}</p>
                     </div>
@@ -168,33 +168,34 @@ export default function ProfileQuizPage() {
             <div className="flex flex-col">
                 <div className="flex flex-row gap-4">
                     <div className="flex flex-row gap-2 justify-items-center">
-                        <input type="checkbox" className="w-5" onChange={() => setShowQuestions(!showQuestions)}/>
+                        <input type="checkbox" className="w-5" onChange={() => setShowQuestions(!showQuestions)} />
                         <label htmlFor="" className="text-lg">Hiện thị câu hỏi</label>
                     </div>
                     {
                         showQuestions ?
-                        <div className="flex flex-row gap-2 justify-items-center">
-                            <input type="checkbox" className="w-5" onChange={() => setShowOptions(!showOptions)}/>
-                            <label htmlFor="" className="text-lg">Hiện thị đáp án</label>
-                        </div>
-                        :
-                        <div>
-                        </div>
+                            <div className="flex flex-row gap-2 justify-items-center">
+                                <input type="checkbox" className="w-5" onChange={() => setShowOptions(!showOptions)} />
+                                <label htmlFor="" className="text-lg">Hiện thị đáp án</label>
+                            </div>
+                            :
+                            <div>
+                            </div>
                     }
                 </div>
                 <div className="grid grid-cols-5 gap-4 mt-6 w-full">
-                    {quiz?.questions?.map((item: any) => (
-                        <div key={item._id} className="w-full"> 
-                            <QuestionSection 
-                                _id={item._id} 
-                                content={item.content} 
-                                image={item.image} 
-                                questionType={item.questionType} 
-                                options={item.options} 
-                                timeLimit={item.timeLimit} 
-                                information={item.information} 
+                    {quiz?.questions?.map((item: any, index: number) => (
+                        <div key={item._id || index} className="w-full">
+                            <QuestionSection
+                                _id={item._id}
+                                content={item.content}
+                                image={item.image}
+                                questionType={item.questionType}
+                                options={item.options}
+                                timeLimit={item.timeLimit}
+                                information={item.information}
                                 showQuestions={showQuestions}
                                 showOptions={showOptions}
+                                isAiGenerated={item.isAiGenerated || quiz?.isAiGenerated}
                             />
                         </div>
                     ))}

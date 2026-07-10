@@ -9,9 +9,10 @@ interface Props {
     onUpdate: (fields: any) => void;
     type: string;
     onDelete: (index: number) => void;
+    isAiGenerated?: boolean;
 }
 
-export const QuestionEditor = ({question, index, onUpdate, type, onDelete}: Props) => {
+export const QuestionEditor = ({question, index, onUpdate, type, onDelete, isAiGenerated}: Props) => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,8 +110,15 @@ export const QuestionEditor = ({question, index, onUpdate, type, onDelete}: Prop
             {/* Right Column: Question Details Form */}
             <div className="bg-[#7A8ED4] border-4 border-black rounded-2xl p-5 flex flex-col gap-5 w-full max-w-md lg:max-w-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="w-full">
-                    <div className="rounded-tl-md rounded-tr-xl bg-[#1877C5] h-6 w-24 flex justify-center items-center text-white font-bold text-xs uppercase tracking-wide border-4 border-black border-b-0">
-                        Câu hỏi
+                    <div className="flex flex-row justify-between items-end mb-0.5">
+                        <div className="rounded-tl-md rounded-tr-xl bg-[#1877C5] h-6 w-24 flex justify-center items-center text-white font-bold text-xs uppercase tracking-wide border-4 border-black border-b-0">
+                            Câu hỏi
+                        </div>
+                        {isAiGenerated && (
+                            <span className="bg-purple-600 px-3 py-0.5 text-white font-bold text-[10px] uppercase tracking-wide rounded-t-md border-2 border-black border-b-0">
+                                AI khởi tạo
+                            </span>
+                        )}
                     </div>
                     <div className="w-full">
                         <input name="" id="" value={question.content} className="w-full h-12 border-4 border-black bg-white rounded-b-xl rounded-tr-xl p-3 font-bold text-slate-800 focus:outline-none" onChange={(e) => handleFieldChange('content', e.target.value)}/>

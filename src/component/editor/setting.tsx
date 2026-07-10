@@ -42,13 +42,17 @@ export const SettingPage = ({quiz, onUpdate}: Props) => {
 
     const handleAddCategory = (cat: string) => {
         if (!selectedCategories.includes(cat)) {
-            const newCategories = [...selectedCategories, cat];
+            const filtered = selectedCategories.filter(item => item !== 'required');
+            const newCategories = [...filtered, cat];
             onUpdate({ tag: newCategories });
         }
     };
 
     const handleRemoveCategory = (catToRemove: string) => {
-        const newCategories = selectedCategories.filter(cat => cat !== catToRemove);
+        let newCategories = selectedCategories.filter(cat => cat !== catToRemove);
+        if (newCategories.length === 0) {
+            newCategories = ['required'];
+        }
         onUpdate({ tag: newCategories });
     };
 

@@ -37,6 +37,7 @@ export const QuizField = ({sections}: QuizFieldProps) => {
                             createdAt={item.createdAt}
                             totalQuestions={item.totalQuestions}
                             type={'home'}
+                            isAiGenerated={item.isAiGenerated}
                         />
                     </div>
                 ))}

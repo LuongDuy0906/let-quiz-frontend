@@ -141,6 +141,7 @@ export default function CreateQuizPage() {
                             onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
                             type={activeType} 
                             onDelete={(index) => handleDeleteQuestion(index)}
+                            isAiGenerated={currentQuestion.isAiGenerated || quiz?.isAiGenerated}
                         />
                     );
                 }
@@ -156,6 +157,7 @@ export default function CreateQuizPage() {
                         onUpdate={(fields) => handleUpdateQuestion(activeIndex, fields)} 
                         type={currentStep} 
                         onDelete={(index) => handleDeleteQuestion(index)}
+                        isAiGenerated={currentQuestion.isAiGenerated || quiz?.isAiGenerated}
                     />
                 );
             case 'setting':

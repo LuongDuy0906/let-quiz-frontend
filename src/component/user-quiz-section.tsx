@@ -9,7 +9,7 @@ export const UserQuizSection = ({
 }: UserQuizSectionProps) => {
 
     return (
-        <div className="flex-1 border-4 border-black rounded-2xl p-6 bg-[#D2DCFF] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-full flex flex-col gap-5 min-h-112.5">
+        <div className="flex-1 border-4 border-black rounded-2xl p-6 bg-[#D2DCFF] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-full flex flex-col gap-5 lg:h-[680px]">
             <style dangerouslySetInnerHTML={{ 
                 __html: `
                     .custom-card-wrapper img {
@@ -26,7 +26,7 @@ export const UserQuizSection = ({
                 ` 
             }} />
 
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start ${isFetching ? 'opacity-50' : ''}`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 ${isFetching ? 'opacity-50' : ''}`}>
                 {quiz.map((element: any) => (
                     <div 
                         key={element._id} 
@@ -40,6 +40,7 @@ export const UserQuizSection = ({
                             name={element.authorId?.profile?.username || "Tác giả"} 
                             createdAt={element.createdAt}
                             type={'profile'}
+                            isAiGenerated={element.isAiGenerated}
                         />
                     </div>
                 ))}

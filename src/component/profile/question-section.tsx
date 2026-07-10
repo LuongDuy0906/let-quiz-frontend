@@ -10,7 +10,8 @@ export const QuestionSection = ({
     timeLimit, 
     information,
     showQuestions,
-    showOptions
+    showOptions,
+    isAiGenerated
 }: QuestionProps) => {
 
     useEffect(() => {
@@ -27,9 +28,16 @@ export const QuestionSection = ({
             )}
 
             <div className="border-b pb-2">
-                <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md uppercase">
-                    {questionType === 'multiple' ? 'Đa đáp án' : 'Đơn đáp án'}
-                </span>
+                <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md uppercase">
+                        {questionType === 'multiple' ? 'Đa đáp án' : 'Đơn đáp án'}
+                    </span>
+                    {isAiGenerated && (
+                        <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded-md uppercase">
+                            AI khởi tạo
+                        </span>
+                    )}
+                </div>
                 <p className="text-lg font-semibold text-gray-800 dark:text-white mt-2">
                     {content || "Chưa có nội dung câu hỏi..."}
                 </p>
